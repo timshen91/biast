@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"sort"
+	"bytes"
 )
 
 type listForSort []*article
@@ -12,7 +13,7 @@ func (this listForSort) Len() int {
 }
 
 func (this listForSort) Less(i, j int) bool {
-	return this[i].date > this[j].date // from lastest to the oldest
+	return this[i].date.Unix() > this[j].date.Unix() // from lastest to the oldest
 }
 
 func (this listForSort) Swap(i, j int) {
@@ -20,8 +21,10 @@ func (this listForSort) Swap(i, j int) {
 }
 
 var indexList listForSort
+var indexCache bytes.Buffer
 
 func updateIndex() {
+	// TODO pager
 	indexList = make([]*article, 16)
 	for _, p := range articles {
 		if p != nil {
@@ -29,10 +32,12 @@ func updateIndex() {
 		}
 	}
 	sort.Sort(indexList)
+	indexCache.Reset()
+	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{"config": config, "articles": indexList})
 }
 
 func indexHandler(w http.ResponseWriter, r * http.Request) {
-	// TODO we just need part of articles instead of the whole, say, from 10 to 20
+	indexCache.WriteTo(w)
 }
 
 func indexInit() {

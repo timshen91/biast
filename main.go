@@ -7,14 +7,15 @@ import (
 	"text/template"
 	"strings"
 	"log"
+	"time"
 	"reflect"
 )
 
 type info struct {
     author string
     email string
-    date int // Unix stamp
-    content string
+    content string // plain html
+    date time.Time
 }
 
 type article struct {

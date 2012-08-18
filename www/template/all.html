@@ -1,0 +1,37 @@
+{{define "_header"}}
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="{{.CssUrl}}style.css">
+		<title>{{.ServerName}}</title>
+	</head>
+	<body>
+		<div class="site-container">
+{{end}}
+
+{{define "_footer"}}
+		</div>
+	</body>
+</html>
+{{end}}
+
+{{define "_article"}}
+<div class="post">
+	<div class="article">
+		<h1><a href="/article/{{.id}}">{{.title}}</a></h1>
+		<div class="meta">{{.author}} @ {{.date.String()}}</div>
+		<hr />
+		{{.content}}
+		<hr />
+	</div>
+</div>
+{{end}}
+
+{{define "index"}}
+{{template "_header" .config}}
+{{range .articles}}
+	{{template "_article" .}}
+{{end}}
+{{template "_footer" .}}
+{{end}}
