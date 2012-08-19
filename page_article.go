@@ -1,14 +1,15 @@
 package main
 
 import (
+	"errors"
+	"html"
 	"net/http"
 	"strconv"
-	"errors"
 	"time"
 )
 
-func articleHandler(w http.ResponseWriter, r * http.Request) {
-	idStr := r.URL.Path[len(config["articleUrl"]):] // FIXME don't use fixed length
+func articleHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Path[len(config["ArticleUrl"]):]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		logger.Println(r.RemoteAddr + ": 404 for an invalid id")
@@ -28,17 +29,17 @@ func articleHandler(w http.ResponseWriter, r * http.Request) {
 			if !checkKeyExist(r.Form, "author", "email", "content") {
 				return errors.New("required field not found")
 			}
-			newComm := &comment{
-				info : info{
-					Author : r.Form.Get("author"),
-					Email : r.Form.Get("email"),
-					Content : r.Form.Get("content"),
-					RemoteAddr : r.RemoteAddr,
-					Date : time.Now(),
+			newComm := &Comment{
+				info: info{
+					Author:     html.EscapeString(r.Form.Get("author")),
+					Email:      html.EscapeString(r.Form.Get("email")),
+					Content:    html.EscapeString(r.Form.Get("content")),
+					RemoteAddr: r.RemoteAddr,
+					Date:       time.Now(),
 				},
-				Father : id,
+				Father: id,
 			}
-			if ok := func(comm *comment) bool {
+			if ok := func(comm *Comment) bool {
 				return true
 			}(newComm); !ok {
 				// TODO comment filter
@@ -47,18 +48,18 @@ func articleHandler(w http.ResponseWriter, r * http.Request) {
 			commList = append(commList, newComm)
 			return nil
 		}(); err != nil {
-			logger.Println(r.RemoteAddr + ":", err.Error())
+			logger.Println(r.RemoteAddr+":", err.Error())
 			feedback = err.Error()
 		}
 	}
 	tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
-		"config": config,
-		"article": p,
+		"config":   config,
+		"article":  p,
 		"feedback": feedback,
 	})
 }
 
-func articleInit() {
-    config["articleUrl"] = config["rootUrl"] + "article/"
-    http.HandleFunc(config["articleUrl"], articleHandler)
+func initPageArticle() {
+	config["ArticleUrl"] = config["RootUrl"] + "article/"
+	http.HandleFunc(config["ArticleUrl"], articleHandler)
 }

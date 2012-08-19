@@ -1,15 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"gedis"
 	"strconv"
-	"encoding/json"
 )
 
 type dbAdapter interface {
-	get(id int) (*article, error)
-	set(id int, data *article) error
+	get(id int) (*Article, error)
+	set(id int, data *Article)
 	keys() []int
 }
 
@@ -23,35 +23,42 @@ func newRedisAdapter(addr, pass, dbId string) (*redisAdapter, error) {
 		return nil, err
 	}
 	return &redisAdapter{
-		cli : redis.Client{
-			Remote : addr,
-			Psw : pass,
-			Db : db,
+		cli: redis.Client{
+			Remote: addr,
+			Psw:    pass,
+			Db:     db,
 		},
 	}, nil
 }
 
-func (this *redisAdapter) get(id int) (*article, error) {
+func (this *redisAdapter) get(id int) (*Article, error) {
 	strp, err := this.cli.Get(fmt.Sprint(id))
 	if err != nil {
 		return nil, err
 	}
 	str := *strp
-	var v article
+	var v Article
 	json.Unmarshal([]byte(str), &v)
 	return &v, nil
 }
 
-func (this *redisAdapter) set(id int, data *article) error {
-	bts, err0 := json.Marshal(data)
-	if err0 != nil {
-		return err0
-	}
-	err1 := this.cli.Set(fmt.Sprint(id), string(bts))
-	if err1 != nil {
-		return err1
+func (this *redisAdapter) jsonSet(id int, data string) error {
+	err := this.cli.Set(fmt.Sprint(id), data)
+	if err != nil {
+		return err
 	}
 	return nil
+}
+
+func (this *redisAdapter) set(id int, data *Article) {
+	bts, err0 := json.Marshal(data)
+	if err0 != nil {
+		logger.Println("redisAdapter:", err0.Error())
+	}
+	err1 := this.jsonSet(id, string(bts))
+	if err1 != nil {
+		logger.Println("redisAdapter:", err1.Error())
+	}
 }
 
 func (this *redisAdapter) keys() []int {

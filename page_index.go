@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"net/http"
 	"sort"
-	"bytes"
 )
 
-type listForSort []*article
+type listForSort []*Article
 
 func (this listForSort) Len() int {
 	return len(this)
@@ -25,7 +25,7 @@ var indexCache bytes.Buffer
 
 func updateIndex() {
 	// TODO pager
-	indexList = make([]*article, 16)
+	indexList = make([]*Article, 16)
 	for _, p := range articles {
 		if p != nil {
 			indexList = append(indexList, p)
@@ -34,16 +34,16 @@ func updateIndex() {
 	sort.Sort(indexList)
 	indexCache.Reset()
 	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
-		"config": config,
+		"config":   config,
 		"articles": indexList,
 	})
 }
 
-func indexHandler(w http.ResponseWriter, r * http.Request) {
+func indexHandler(w http.ResponseWriter, r *http.Request) {
 	indexCache.WriteTo(w)
 }
 
-func indexInit() {
-	http.HandleFunc(config["rootUrl"], indexHandler)
+func initPageIndex() {
+	http.HandleFunc(config["RootUrl"], indexHandler)
 	updateIndex()
 }
