@@ -12,22 +12,53 @@ import (
 )
 
 type info struct {
-    author string
-    email string
-    content string // plain html
-    date time.Time
+    Author string
+    Email string
+    Content string // plain html
+	RemoteAddr string // i'm evil
+    Date time.Time
 }
 
 type article struct {
 	info
-    id int
-    title string
-    comments []*comment
+    Id int
+    Title string
+    Comments []*comment
 }
 
 type comment struct {
 	info
-	father int
+	Father int
+}
+
+type syncQ struct {
+	db dbAdapter
+	inQ map[int]struct{}
+	queue chan int
+}
+
+func newSyncQ(db dbAdapter) *syncQ {
+	return &syncQ{
+		db : db,
+		inQ : make(map[int]struct{}),
+		queue : make(chan int),
+	}
+}
+
+func (this *syncQ) push(id int) {
+	_, ex := this.inQ[id]
+	if !ex {
+		this.inQ[id] = struct{}{}
+		this.queue<-id
+	}
+}
+
+func (this *syncQ) saveCron() {
+	for {
+		id := <-this.queue
+		this.db.set(id, articles[id])
+		delete(this.inQ, id)
+	}
 }
 
 var articles []*article
@@ -35,6 +66,7 @@ var config map[string]string = make(map[string]string)
 var tmpl *template.Template
 var db dbAdapter
 var logger *log.Logger
+var dbReq chan int // id
 
 func dbReadin() {
 	idList := db.keys()
@@ -49,13 +81,10 @@ func dbReadin() {
 		p, err := db.get(id)
 		if err != nil {
 			logger.Println(err.Error())
+			continue
 		}
-		articles[id] = p.(*article)
+		articles[id] = p
 	}
-}
-
-func saveCron() {
-	// TODO
 }
 
 func checkKeyExist(m interface{}, args ...string) bool {
@@ -82,6 +111,7 @@ func checkKeyExist(m interface{}, args ...string) bool {
 }
 
 func main() {
+	// config init
 	buff, err0 := ioutil.ReadFile("/etc/biast.conf")
 	if err0 != nil {
 		panic(err0.Error())
@@ -116,10 +146,10 @@ func main() {
 		config["LogPath"] = config["documentPath"] + "log"
 	}
 	tmpl = template.Must(template.ParseGlob(config["TemplatePath"] + "*"))
-	db = &redisAdapter {
-		config["DbAddr"],
-		config["DbPass"],
-		config["DbId"],
+	var err1 error
+	db, err1 = newRedisAdapter(config["DbAddr"], config["DbPass"], config["DbId"])
+	if err1 != nil {
+		panic(err1.Error())
 	}
 	logWriter, err := os.OpenFile(config["LogPath"], os.O_APPEND | os.O_CREATE, 0644)
 	if err != nil {
@@ -131,9 +161,8 @@ func main() {
 
 	dbReadin()
 	// modules init
-	// indexInit()
-	// articleInit()
-	// postArticleInit()
-	go saveCron()
+	indexInit()
+	articleInit()
+	go newSyncQ(db).saveCron()
 	http.ListenAndServe(config["ServerAddr"], nil)
 }

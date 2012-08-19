@@ -13,7 +13,7 @@ func (this listForSort) Len() int {
 }
 
 func (this listForSort) Less(i, j int) bool {
-	return this[i].date.Unix() > this[j].date.Unix() // from lastest to the oldest
+	return this[i].Date.Unix() > this[j].Date.Unix() // from lastest to the oldest
 }
 
 func (this listForSort) Swap(i, j int) {
@@ -33,7 +33,10 @@ func updateIndex() {
 	}
 	sort.Sort(indexList)
 	indexCache.Reset()
-	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{"config": config, "articles": indexList})
+	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
+		"config": config,
+		"articles": indexList,
+	})
 }
 
 func indexHandler(w http.ResponseWriter, r * http.Request) {

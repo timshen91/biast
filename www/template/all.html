@@ -19,13 +19,52 @@
 {{define "_article"}}
 <div class="post">
 	<div class="article">
-		<h1><a href="/article/{{.id}}">{{.title}}</a></h1>
-		<div class="meta">{{.author}} @ {{.date.String()}}</div>
+		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
+		<div class="meta">{{.Author}} @ {{.Date.String()}}</div>
 		<hr />
-		{{.content}}
+		{{.Content}}
 		<hr />
 	</div>
 </div>
+{{end}}
+
+{{define "_comment"}}
+<div class="comments">
+	<h1>Comments</h1>
+	{{range .}}
+		<div class="comment">
+			<div class="comment_author"><b>{{.Author}}</b> @ {{.Date}}</div>
+			<hr />
+			{{.Content}}
+		</div>
+	{{end}}
+</div>
+{{end}}
+
+{{define "article"}}
+{{template "_header" .config}}
+{{template "_article" .article}}
+{{template "_comment" .article.Comments}}
+<div class="post_form">
+	<h1>Post a comment</h1>
+	<div class="form">
+		<form method="post">
+			<p>
+				<input name="author">
+				<label for="author">Name</label>
+			</p>
+			<p>
+				<input name="email">
+				<label for="email">Email</label>
+			</p>
+			<p>
+				<textarea name="content"></textarea>
+			</p>
+			<input type="submit" value="Send" name="post">
+		</form>
+	</div>
+</div>
+{{template "_footer" .}}
 {{end}}
 
 {{define "index"}}
