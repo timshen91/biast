@@ -7,8 +7,6 @@ import (
 	"os"
 	"reflect"
 	"strings"
-	"sync"
-	"sync/atomic"
 	"text/template"
 	"time"
 )
@@ -32,80 +30,6 @@ type Comment struct {
 	Info    info
 	Father  uint32
 	Content string // plain html
-}
-
-type manager struct {
-	articles    map[uint32]*Article
-	mutex       sync.RWMutex
-	articleHead uint32
-	commentHead uint32
-}
-
-func newArticleMgr(db dbAdapter) *manager {
-	ret := &manager{
-		articles: map[uint32]*Article{},
-	}
-	articleList, commentList := db.getAll()
-	ret.articleHead = 0
-	for _, p := range articleList {
-		ret.articles[p.Info.Id] = p
-		p.Comments = make([]*Comment, 0)
-		if ret.articleHead < p.Info.Id {
-			ret.articleHead = p.Info.Id
-		}
-	}
-	ret.commentHead = 0
-	for _, p := range commentList {
-		f, ok := ret.articles[p.Father]
-		if !ok {
-			logger.Println("comment without a father:", p)
-			continue
-		}
-		f.Comments = append(f.Comments, p)
-		if ret.articleHead < p.Info.Id {
-			ret.articleHead = p.Info.Id
-		}
-	}
-	// TODO comments need sort
-	return ret
-}
-
-func (this *manager) atomGet(id uint32) *Article {
-	this.mutex.RLock()
-	ret, ok := this.articles[id]
-	this.mutex.RUnlock()
-	if !ok {
-		return nil
-	}
-	return ret
-}
-
-func (this *manager) atomSet(ptr *Article) {
-	this.mutex.Lock()
-	this.articles[ptr.Info.Id] = ptr
-	this.mutex.Unlock()
-}
-
-func (this *manager) values() []*Article {
-	ret := make([]*Article, 0)
-	this.mutex.RLock()
-	for _, p := range this.articles {
-		ret = append(ret, p)
-	}
-	this.mutex.RUnlock()
-	return ret
-}
-
-func allocId(head *uint32) uint32 {
-	return atomic.AddUint32(head, 1)
-}
-
-func (this *manager) allocArticleId() uint32 {
-	return allocId(&this.articleHead)
-}
-
-func (this *manager) allocCommentId() uint32 {
-	return allocId(&this.commentHead)
 }
 
 var config map[string]string = make(map[string]string)
