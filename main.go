@@ -9,75 +9,92 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"sync"
+	"sync/atomic"
 )
 
 type info struct {
 	Author     string
 	Email      string
-	Content    string // plain html
 	RemoteAddr string // I'm evil
 	Date       time.Time
 }
 
 type Article struct {
-	info
-	Id       int
+	Info info
+	Id       uint32
 	Title    string
+	Content    string // plain html
 	Comments []*Comment
 }
 
 type Comment struct {
-	info
-	Father int
+	Info info
+	Father uint32
+	Content    string // plain html
 }
 
-type syncQ struct {
-	db    dbAdapter
-	inQ   map[int]struct{}
-	queue chan int
+type articleMgr struct {
+	articles map[uint32]*Article
+	mutex sync.RWMutex
+	head uint32
 }
 
-func newSyncQ(db dbAdapter) *syncQ {
-	return &syncQ{
-		db:    db,
-		inQ:   make(map[int]struct{}),
-		queue: make(chan int),
+func newArticleMgr(db dbAdapter) *articleMgr {
+	this := &articleMgr{
+		articles: map[uint32]*Article{},
 	}
-}
-
-func (this *syncQ) push(id int) {
-	_, ex := this.inQ[id]
-	if !ex {
-		this.inQ[id] = struct{}{}
-		this.queue <- id
-	}
-}
-
-func (this *syncQ) saveCron() {
-	for {
-		id := <-this.queue
-		this.db.set(id, articles[id])
-		delete(this.inQ, id)
-	}
-}
-
-var articles = map[int]*Article{}
-var config map[string]string = make(map[string]string)
-var tmpl *template.Template
-var db dbAdapter
-var logger *log.Logger
-var dbReq chan int // id
-
-func dbReadin() {
-	for _, id := range db.keys() {
-		p, err := db.get(id)
+	this.head = 0
+	for _, id := range db.articleKeys() {
+		if this.head < id {
+			this.head = id
+		}
+		p, err := db.getArticle(id)
 		if err != nil {
 			logger.Println(err.Error())
 			continue
 		}
-		articles[id] = p
+		this.articles[id] = p
 	}
+	return this
 }
+
+func (this *articleMgr) atomGet(id uint32) *Article {
+	this.mutex.RLock()
+	ret, ok := this.articles[id]
+	this.mutex.RUnlock()
+	if !ok {
+		return nil
+	}
+	return ret
+}
+
+func (this *articleMgr) atomSet(ptr *Article) {
+	this.mutex.Lock()
+	this.articles[ptr.Id] = ptr
+	this.mutex.Unlock()
+}
+
+func (this *articleMgr) values() []*Article {
+	ret := make([]*Article, 0)
+	this.mutex.Lock()
+	for _, p := range this.articles {
+		ret = append(ret, p)
+	}
+	this.mutex.Unlock()
+	return ret
+}
+
+func (this *articleMgr) allocId() uint32 {
+	this.head = atomic.AddUint32(&this.head, 1)
+	return this.head
+}
+
+var config map[string]string = make(map[string]string)
+var tmpl *template.Template
+var logger *log.Logger
+var artMgr *articleMgr
+var db dbAdapter
 
 func checkKeyExist(m interface{}, args ...string) bool {
 	value := reflect.ValueOf(m)
@@ -104,9 +121,9 @@ func checkKeyExist(m interface{}, args ...string) bool {
 
 func main() {
 	// config init
-	buff, err0 := ioutil.ReadFile("/etc/biast.conf")
-	if err0 != nil {
-		panic(err0.Error())
+	buff, err := ioutil.ReadFile("/etc/biast.conf")
+	if err != nil {
+		panic(err.Error())
 	}
 	for _, line := range strings.Split(string(buff), "\n") {
 		if len(line) == 0 {
@@ -134,27 +151,32 @@ func main() {
 	config["CssUrl"] = config["RootUrl"] + "css/"
 	config["ImagePath"] = config["DocumentPath"] + "image/"
 	config["ImageUrl"] = config["RootUrl"] + "image/"
-	if _, ok := config["LogPath"]; !ok {
-		config["LogPath"] = config["documentPath"] + "log"
-	}
-	tmpl = template.Must(template.ParseGlob(config["TemplatePath"] + "*"))
-	var err1 error
-	db, err1 = newRedisAdapter(config["DbAddr"], config["DbPass"], config["DbId"])
-	if err1 != nil {
-		panic(err1.Error())
-	}
-	logWriter, err := os.OpenFile(config["LogPath"], os.O_APPEND|os.O_CREATE, 0644)
-	if err != nil {
-		panic(err.Error())
-	}
-	logger = log.New(logWriter, "biast: ", log.LstdFlags|log.Lshortfile)
 	http.Handle(config["CssUrl"], http.StripPrefix(config["CssUrl"], http.FileServer(http.Dir(config["CssPath"]))))
 	http.Handle(config["ImageUrl"], http.StripPrefix(config["ImageUrl"], http.FileServer(http.Dir(config["ImagePath"]))))
+	// template init
+	tmpl = template.Must(template.ParseGlob(config["TemplatePath"] + "*.html"))
+	var err1 error
+	if db, err1 = newRedisAdapter(config["DbAddr"], config["DbPass"], config["DbId"]); err1 != nil {
+		panic(err1.Error())
+	}
+	// article manager and db init
+	artMgr = newArticleMgr(db)
+	// logger
+	if _, ok := config["LogPath"]; ok {
+		logWriter, err := os.OpenFile(config["LogPath"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+		if err != nil {
+			panic(err.Error())
+		}
+		logger = log.New(logWriter, "biast: ", log.LstdFlags|log.Lshortfile)
+	} else {
+		logger = log.New(os.Stderr, "biast: ", log.LstdFlags|log.Lshortfile)
+	}
 
-	dbReadin()
 	// modules init
 	initPageIndex()
 	initPageArticle()
-	go newSyncQ(db).saveCron()
+	initPageAdmin()
+	logger.Println("Server start")
+	defer logger.Println("Server halt")
 	http.ListenAndServe(config["ServerAddr"], nil)
 }

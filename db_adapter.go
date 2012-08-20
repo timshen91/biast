@@ -3,18 +3,25 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"gedis"
+	"goredis"
 	"strconv"
 )
 
+const (
+	articlePrefix = "article"
+	queueSize = 16
+)
+
 type dbAdapter interface {
-	get(id int) (*Article, error)
-	set(id int, data *Article)
-	keys() []int
+	getArticle(id uint32) (*Article, error)
+	setArticle(ptr *Article)
+	articleKeys() []uint32
+	reset()
 }
 
 type redisAdapter struct {
 	cli redis.Client
+	queue chan *Article
 }
 
 func newRedisAdapter(addr, pass, dbId string) (*redisAdapter, error) {
@@ -22,59 +29,68 @@ func newRedisAdapter(addr, pass, dbId string) (*redisAdapter, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &redisAdapter{
+	ret := &redisAdapter{
 		cli: redis.Client{
 			Remote: addr,
 			Psw:    pass,
 			Db:     db,
 		},
-	}, nil
+		queue: make(chan *Article, queueSize),
+	}
+	if err := ret.cli.Connect(); err != nil {
+		return nil, err
+	}
+	go ret.sync()
+	return ret, nil
 }
 
-func (this *redisAdapter) get(id int) (*Article, error) {
-	strp, err := this.cli.Get(fmt.Sprint(id))
+func (this *redisAdapter) getArticle(id uint32) (*Article, error) {
+	strp, err := this.cli.Get(articlePrefix + fmt.Sprint(id))
 	if err != nil {
 		return nil, err
 	}
-	str := *strp
+	str := *strp // FIXME strp == nil
 	var v Article
 	json.Unmarshal([]byte(str), &v)
 	return &v, nil
 }
 
-func (this *redisAdapter) jsonSet(id int, data string) error {
-	err := this.cli.Set(fmt.Sprint(id), data)
-	if err != nil {
-		return err
-	}
-	return nil
+func (this *redisAdapter) setArticle(data *Article) {
+	this.queue<-data
 }
 
-func (this *redisAdapter) set(id int, data *Article) {
-	bts, err0 := json.Marshal(data)
-	if err0 != nil {
-		logger.Println("redisAdapter:", err0.Error())
-	}
-	err1 := this.jsonSet(id, string(bts))
-	if err1 != nil {
-		logger.Println("redisAdapter:", err1.Error())
-	}
-}
-
-func (this *redisAdapter) keys() []int {
-	strs, err := this.cli.Keys("") // FIXME what is the fxcking arg?
+func (this *redisAdapter) articleKeys() []uint32 {
+	strs, err := this.cli.Keys(articlePrefix + "*")
 	if err != nil {
 		logger.Println("redisAdapter:", err.Error())
 		return nil
 	}
-	ret := make([]int, 16)
+	ret := make([]uint32, 0)
 	for _, s := range strs {
-		id, err := strconv.Atoi(s)
+		id, err := strconv.ParseUint(s[len(articlePrefix):], 10, 32)
 		if err != nil {
 			logger.Println("redisAdapter:", err.Error())
 			continue
 		}
-		ret = append(ret, id)
+		ret = append(ret, uint32(id))
 	}
 	return ret
+}
+
+func (this *redisAdapter) reset() {
+	this.cli.Disconnect()
+}
+
+func (this *redisAdapter) sync() {
+	for {
+		article := <-this.queue
+		bts, err0 := json.Marshal(article)
+		if err0 != nil {
+			logger.Println("redisAdapter:", err0.Error())
+		}
+		err1 := this.cli.Set(articlePrefix + fmt.Sprint(article.Id), string(bts))
+		if err1 != nil {
+			logger.Println("redisAdapter:", err1.Error())
+		}
+	}
 }

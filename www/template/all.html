@@ -20,7 +20,7 @@
 <div class="post">
 	<div class="article">
 		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
-		<div class="meta">{{.Author}} @ {{.Date.String()}}</div>
+		<div class="meta">{{.Info.Author}} @ {{.Info.Date.String}}</div>
 		<hr />
 		{{.Content}}
 		<hr />
@@ -33,7 +33,7 @@
 	<h1>Comments</h1>
 	{{range .}}
 		<div class="comment">
-			<div class="comment_author"><b>{{.Author}}</b> @ {{.Date}}</div>
+			<div class="comment_author"><b>{{.Info.Author}}</b> @ {{.Info.Date}}</div>
 			<hr />
 			{{.Content}}
 		</div>
@@ -73,4 +73,34 @@
 	{{template "_article" .}}
 {{end}}
 {{template "_footer" .}}
+{{end}}
+
+{{define "new"}}
+{{template "_header" .config}}
+<div class="post_form">
+	<span style="color:red">{{.feedback}}</span>
+	<h1>Post an article</h1>
+	<div class="form">
+		<form method="post">
+			<p>
+				<label for="title">Title</label><br/>
+				<input name="title" value="{{.form.Title}}">
+			</p>
+			<p>
+				<label for="author">Author</label><br/>
+				<input name="author" value="{{.form.Info.Author}}">
+			</p>
+			<p>
+				<label for="email">Email</label><br/>
+				<input name="email" value="{{.form.Info.Email}}">
+			</p>
+			<p>
+				<label for="text">Content (plain html)</label><br/>
+				<textarea name="content">{{.form.Content}}</textarea>
+			</p>
+			<input type="submit" value="Submit" onclick="document.forms[0].target = '';" name="post">
+		</div>
+	</form>
+</div>
+{{template "_footer" .server}}
 {{end}}

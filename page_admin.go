@@ -3,16 +3,13 @@ package main
 import (
 	"errors"
 	"net/http"
+	"html"
 	"time"
 )
 
-func allocId() int {
-	return 0
-}
-
 func newArticle(w http.ResponseWriter, r *http.Request) {
 	var feedback string
-	var form *Article
+	form := &Article{}
 	if r.Method == "POST" {
 		feedback = "Article sent"
 		r.ParseForm()
@@ -21,20 +18,22 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 				logger.Println("new:", "required field not exists")
 				return errors.New("required field not exists")
 			}
-			id := allocId()
 			form = &Article{
-				info: info{
-					Author:     r.Form.Get("author"),
-					Email:      r.Form.Get("email"),
-					Content:    r.Form.Get("content"),
+				Info: info{
+					Author:     html.EscapeString(r.Form.Get("author")),
+					Email:      html.EscapeString(r.Form.Get("email")),
 					RemoteAddr: r.RemoteAddr,
 					Date:       time.Now(),
 				},
-				Id:       id,
-				Title:    r.Form.Get("title"),
+				Title:    html.EscapeString(r.Form.Get("title")),
+				Content:    r.Form.Get("content"),
 				Comments: make([]*Comment, 0),
 			}
-			articles[id] = form // FIXME it may not be atomic
+			id := artMgr.allocId()
+			form.Id = id
+			artMgr.atomSet(form)
+			db.setArticle(form)
+			updateIndex()
 			return nil
 		}(); err != nil {
 			feedback = "Oops...! " + err.Error()
@@ -51,6 +50,6 @@ func initPageAdmin() {
 	if config["AdminUrl"][len(config["AdminUrl"])-1] != '/' {
 		config["AdminUrl"] += "/"
 	}
-	http.HandleFunc(config["AdminUrl"]+"new", newArticle)
+	http.HandleFunc(config["RootUrl"] + config["AdminUrl"]+"new", newArticle)
 	// http.HandleFunc(config["AdminUrl"] + "modify", modifyArticle)
 }

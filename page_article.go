@@ -10,13 +10,14 @@ import (
 
 func articleHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len(config["ArticleUrl"]):]
-	id, err := strconv.Atoi(idStr)
+	id64, err := strconv.ParseUint(idStr, 10, 32)
+	id := uint32(id64)
 	if err != nil {
 		logger.Println(r.RemoteAddr + ": 404 for an invalid id")
 		http.NotFound(w, r)
 		return
 	}
-	p := articles[id]
+	p := artMgr.atomGet(id)
 	if p == nil {
 		logger.Println("404 for an nonexist id")
 		http.NotFound(w, r)
@@ -30,22 +31,25 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 				return errors.New("required field not found")
 			}
 			newComm := &Comment{
-				info: info{
+				Info: info{
 					Author:     html.EscapeString(r.Form.Get("author")),
 					Email:      html.EscapeString(r.Form.Get("email")),
-					Content:    html.EscapeString(r.Form.Get("content")),
 					RemoteAddr: r.RemoteAddr,
 					Date:       time.Now(),
 				},
 				Father: id,
+				Content:    html.EscapeString(r.Form.Get("content")),
 			}
 			if ok := func(comm *Comment) bool {
 				return true
 			}(newComm); !ok {
 				// TODO comment filter
 			}
-			commList := p.Comments
-			commList = append(commList, newComm)
+			temp := *p
+			p = &temp
+			p.Comments = append(p.Comments, newComm)
+			artMgr.atomSet(p)
+			db.setArticle(p)
 			return nil
 		}(); err != nil {
 			logger.Println(r.RemoteAddr+":", err.Error())

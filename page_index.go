@@ -13,7 +13,7 @@ func (this listForSort) Len() int {
 }
 
 func (this listForSort) Less(i, j int) bool {
-	return this[i].Date.Unix() > this[j].Date.Unix() // from lastest to the oldest
+	return this[i].Info.Date.Unix() > this[j].Info.Date.Unix() // from lastest to the oldest
 }
 
 func (this listForSort) Swap(i, j int) {
@@ -25,12 +25,7 @@ var indexCache bytes.Buffer
 
 func updateIndex() {
 	// TODO pager
-	indexList = make([]*Article, 16)
-	for _, p := range articles {
-		if p != nil {
-			indexList = append(indexList, p)
-		}
-	}
+	indexList = artMgr.values()
 	sort.Sort(indexList)
 	indexCache.Reset()
 	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
