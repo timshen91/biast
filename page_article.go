@@ -46,7 +46,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 				// TODO comment filter
 			}
 			newComm.Info.Id = artMgr.allocCommentId()
-			p.Comments = append(p.Comments, newComm)
+			artMgr.atomAppendComment(newComm)
 			db.syncComment(newComm)
 			return nil
 		}(); err != nil {

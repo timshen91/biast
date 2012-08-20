@@ -8,12 +8,12 @@ import (
 
 type manager struct {
 	articles    map[uint32]*Article
-	mutex       sync.RWMutex
+	mutex sync.RWMutex
 	articleHead uint32
 	commentHead uint32
 }
 
-func newArticleMgr(db dbAdapter) *manager {
+func newArticleMgr(db dbSync) *manager {
 	ret := &manager{
 		articles: map[uint32]*Article{},
 	}
@@ -58,6 +58,13 @@ func (this *manager) atomGet(id uint32) *Article {
 func (this *manager) atomSet(ptr *Article) {
 	this.mutex.Lock()
 	this.articles[ptr.Info.Id] = ptr
+	this.mutex.Unlock()
+}
+
+func (this *manager) atomAppendComment(p *Comment) {
+	this.mutex.Lock()
+	art := this.articles[p.Father]
+	art.Comments = append(art.Comments, p)
 	this.mutex.Unlock()
 }
 

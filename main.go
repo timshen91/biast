@@ -36,7 +36,7 @@ var config map[string]string = make(map[string]string)
 var tmpl *template.Template
 var logger *log.Logger
 var artMgr *manager
-var db dbAdapter
+var db dbSync
 
 func checkKeyExist(m interface{}, args ...string) bool {
 	value := reflect.ValueOf(m)
@@ -98,7 +98,7 @@ func main() {
 	// template init
 	tmpl = template.Must(template.ParseGlob(config["TemplatePath"] + "*.html"))
 	var err1 error
-	if db, err1 = newRedisAdapter(config["DbAddr"], config["DbPass"], config["DbId"]); err1 != nil {
+	if db, err1 = newRedisSync(config["DbAddr"], config["DbPass"], config["DbId"]); err1 != nil {
 		panic(err1.Error())
 	}
 	// article manager and db init
