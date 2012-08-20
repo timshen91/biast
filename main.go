@@ -77,11 +77,11 @@ func (this *articleMgr) atomSet(ptr *Article) {
 
 func (this *articleMgr) values() []*Article {
 	ret := make([]*Article, 0)
-	this.mutex.Lock()
+	this.mutex.RLock()
 	for _, p := range this.articles {
 		ret = append(ret, p)
 	}
-	this.mutex.Unlock()
+	this.mutex.RUnlock()
 	return ret
 }
 
