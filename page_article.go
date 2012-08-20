@@ -37,19 +37,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 					RemoteAddr: r.RemoteAddr,
 					Date:       time.Now(),
 				},
-				Father: id,
-				Content:    html.EscapeString(r.Form.Get("content")),
+				Father:  id,
+				Content: html.EscapeString(r.Form.Get("content")),
 			}
 			if ok := func(comm *Comment) bool {
 				return true
 			}(newComm); !ok {
 				// TODO comment filter
 			}
-			temp := *p
-			p = &temp
+			newComm.Info.Id = artMgr.allocCommentId()
 			p.Comments = append(p.Comments, newComm)
-			artMgr.atomSet(p)
-			db.setArticle(p)
+			db.syncComment(newComm)
 			return nil
 		}(); err != nil {
 			logger.Println(r.RemoteAddr+":", err.Error())

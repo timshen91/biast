@@ -7,13 +7,14 @@ import (
 	"os"
 	"reflect"
 	"strings"
-	"text/template"
-	"time"
 	"sync"
 	"sync/atomic"
+	"text/template"
+	"time"
 )
 
 type info struct {
+	Id         uint32
 	Author     string
 	Email      string
 	RemoteAddr string // I'm evil
@@ -21,45 +22,55 @@ type info struct {
 }
 
 type Article struct {
-	Info info
-	Id       uint32
+	Info     info
 	Title    string
-	Content    string // plain html
+	Content  string // plain html
 	Comments []*Comment
 }
 
 type Comment struct {
-	Info info
-	Father uint32
-	Content    string // plain html
+	Info    info
+	Father  uint32
+	Content string // plain html
 }
 
-type articleMgr struct {
-	articles map[uint32]*Article
-	mutex sync.RWMutex
-	head uint32
+type manager struct {
+	articles    map[uint32]*Article
+	mutex       sync.RWMutex
+	articleHead uint32
+	commentHead uint32
 }
 
-func newArticleMgr(db dbAdapter) *articleMgr {
-	this := &articleMgr{
+func newArticleMgr(db dbAdapter) *manager {
+	ret := &manager{
 		articles: map[uint32]*Article{},
 	}
-	this.head = 0
-	for _, id := range db.articleKeys() {
-		if this.head < id {
-			this.head = id
+	articleList, commentList := db.getAll()
+	ret.articleHead = 0
+	for _, p := range articleList {
+		ret.articles[p.Info.Id] = p
+		p.Comments = make([]*Comment, 0)
+		if ret.articleHead < p.Info.Id {
+			ret.articleHead = p.Info.Id
 		}
-		p, err := db.getArticle(id)
-		if err != nil {
-			logger.Println(err.Error())
+	}
+	ret.commentHead = 0
+	for _, p := range commentList {
+		f, ok := ret.articles[p.Father]
+		if !ok {
+			logger.Println("comment without a father:", p)
 			continue
 		}
-		this.articles[id] = p
+		f.Comments = append(f.Comments, p)
+		if ret.articleHead < p.Info.Id {
+			ret.articleHead = p.Info.Id
+		}
 	}
-	return this
+	// TODO comments need sort
+	return ret
 }
 
-func (this *articleMgr) atomGet(id uint32) *Article {
+func (this *manager) atomGet(id uint32) *Article {
 	this.mutex.RLock()
 	ret, ok := this.articles[id]
 	this.mutex.RUnlock()
@@ -69,13 +80,13 @@ func (this *articleMgr) atomGet(id uint32) *Article {
 	return ret
 }
 
-func (this *articleMgr) atomSet(ptr *Article) {
+func (this *manager) atomSet(ptr *Article) {
 	this.mutex.Lock()
-	this.articles[ptr.Id] = ptr
+	this.articles[ptr.Info.Id] = ptr
 	this.mutex.Unlock()
 }
 
-func (this *articleMgr) values() []*Article {
+func (this *manager) values() []*Article {
 	ret := make([]*Article, 0)
 	this.mutex.RLock()
 	for _, p := range this.articles {
@@ -85,15 +96,22 @@ func (this *articleMgr) values() []*Article {
 	return ret
 }
 
-func (this *articleMgr) allocId() uint32 {
-	this.head = atomic.AddUint32(&this.head, 1)
-	return this.head
+func allocId(head *uint32) uint32 {
+	return atomic.AddUint32(head, 1)
+}
+
+func (this *manager) allocArticleId() uint32 {
+	return allocId(&this.articleHead)
+}
+
+func (this *manager) allocCommentId() uint32 {
+	return allocId(&this.commentHead)
 }
 
 var config map[string]string = make(map[string]string)
 var tmpl *template.Template
 var logger *log.Logger
-var artMgr *articleMgr
+var artMgr *manager
 var db dbAdapter
 
 func checkKeyExist(m interface{}, args ...string) bool {

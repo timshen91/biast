@@ -19,7 +19,7 @@
 {{define "_article"}}
 <div class="post">
 	<div class="article">
-		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
+		<h1><a href="/article/{{.Info.Id}}">{{.Title}}</a></h1>
 		<div class="meta">{{.Info.Author}} @ {{.Info.Date.String}}</div>
 		<hr />
 		{{.Content}}

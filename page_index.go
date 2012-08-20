@@ -35,7 +35,7 @@ func updateIndex() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	indexCache.WriteTo(w)
+	w.Write(indexCache.Bytes())
 }
 
 func initPageIndex() {

@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"net/http"
 	"html"
+	"net/http"
 	"time"
 )
 
@@ -26,13 +26,13 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 					Date:       time.Now(),
 				},
 				Title:    html.EscapeString(r.Form.Get("title")),
-				Content:    r.Form.Get("content"),
+				Content:  r.Form.Get("content"),
 				Comments: make([]*Comment, 0),
 			}
-			id := artMgr.allocId()
-			form.Id = id
+			id := artMgr.allocArticleId()
+			form.Info.Id = id
 			artMgr.atomSet(form)
-			db.setArticle(form)
+			db.syncArticle(form)
 			updateIndex()
 			return nil
 		}(); err != nil {
@@ -50,6 +50,6 @@ func initPageAdmin() {
 	if config["AdminUrl"][len(config["AdminUrl"])-1] != '/' {
 		config["AdminUrl"] += "/"
 	}
-	http.HandleFunc(config["RootUrl"] + config["AdminUrl"]+"new", newArticle)
+	http.HandleFunc(config["RootUrl"]+config["AdminUrl"]+"new", newArticle)
 	// http.HandleFunc(config["AdminUrl"] + "modify", modifyArticle)
 }
