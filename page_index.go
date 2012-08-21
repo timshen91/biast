@@ -3,29 +3,24 @@ package main
 import (
 	"bytes"
 	"net/http"
-	"sync"
 )
 
-var indexCache bytes.Buffer
-var indexCacheMutex sync.RWMutex
+var indexCache *bytes.Buffer
 
 func updateIndex() {
 	// TODO pager
 	indexList := artMgr.atomGetAllArticles()
 	qsortForArticleList(indexList, 0, len(indexList)-1)
-	indexCacheMutex.Lock()
-	indexCache.Reset()
-	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
+	newCache := &bytes.Buffer{}
+	tmpl.ExecuteTemplate(newCache, "index", map[string]interface{}{
 		"config":   config,
 		"articles": indexList,
 	})
-	indexCacheMutex.Unlock()
+	indexCache = newCache
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	indexCacheMutex.RLock()
 	w.Write(indexCache.Bytes())
-	indexCacheMutex.RUnlock()
 }
 
 func initPageIndex() {
