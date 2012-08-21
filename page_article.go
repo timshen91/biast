@@ -53,8 +53,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 			newComm.Id = artMgr.allocCommentId()
 			// EventStart: newComment
 			artMgr.atomAppendComment(newComm)
-			go newCommentNotify(newComm)
 			db.sync(commentPrefix, newComm)
+			go newCommentNotify(newComm)
 			// EventEnd: newComment
 			return nil
 		}(); err != nil {

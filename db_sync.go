@@ -7,17 +7,17 @@ import (
 	"strconv"
 )
 
-type prefixType string
-
-type hasId interface {
-	getId() uint32
-}
-
 const (
 	articlePrefix prefixType = "article"
 	commentPrefix            = "comment"
 	queueSize                = 16
 )
+
+type prefixType string
+
+type hasId interface {
+	getId() uint32
+}
 
 type dbSync interface {
 	getStrList(prefixType) [][]byte
@@ -30,8 +30,8 @@ type redisSync struct {
 }
 
 type syncReq struct {
-	id  []byte
-	str []byte
+	prefix prefixType
+	data   hasId
 }
 
 func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
@@ -73,18 +73,18 @@ func (this *redisSync) getStrList(prefix prefixType) [][]byte {
 }
 
 func (this *redisSync) sync(prefix prefixType, data hasId) {
-	bts, err := json.Marshal(data)
-	if err != nil {
-		logger.Println("redisSync:", err.Error())
-	}
-	this.queue <- &syncReq{[]byte(string(prefix) + fmt.Sprint(data.getId())), bts}
+	this.queue <- &syncReq{prefix, data}
 }
 
 func (this *redisSync) worker() {
 	for {
-		data := <-this.queue
-		err := this.cli.Set(data.id, data.str)
+		req := <-this.queue
+		bts, err := json.Marshal(req.data)
 		if err != nil {
+			logger.Println("redisSync:", err.Error())
+			continue
+		}
+		if err := this.cli.Set([]byte(string(req.prefix)+fmt.Sprint(req.data.getId())), bts); err != nil {
 			logger.Println("redisSync:", err.Error())
 		}
 	}

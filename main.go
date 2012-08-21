@@ -57,14 +57,10 @@ func main() {
 		panic(err.Error())
 	}
 	for _, line := range strings.Split(string(buff), "\n") {
-		if len(line) == 0 {
-			continue
+		if pos := strings.Index(line, "#"); pos != -1 {
+			line = line[0:pos]
 		}
-		if line[0] == '#' {
-			continue
-		}
-		pos := strings.Index(line, "=")
-		if pos != -1 {
+		if pos := strings.Index(line, "="); pos != -1 {
 			config[strings.TrimSpace(line[:pos])] = strings.TrimSpace(line[pos+1:])
 		}
 	}
