@@ -11,7 +11,7 @@ import (
 func articleHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Path[len(config["ArticleUrl"]):]
 	id64, err := strconv.ParseUint(idStr, 10, 32)
-	id := uint32(id64)
+	id := aid(id64)
 	if err != nil {
 		logger.Println(r.RemoteAddr + ": 404 for an invalid id")
 		http.NotFound(w, r)
@@ -31,18 +31,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 				return errors.New("required field not found")
 			}
 			newComm := &Comment{
-				Info: info{
-					Author:     html.EscapeString(r.Form.Get("author")),
-					Email:      html.EscapeString(r.Form.Get("email")),
-					RemoteAddr: r.RemoteAddr,
-					Date:       time.Now(),
-				},
-				Father:  id,
-				Content: html.EscapeString(r.Form.Get("content")),
+				Author:     html.EscapeString(r.Form.Get("author")),
+				Email:      html.EscapeString(r.Form.Get("email")),
+				RemoteAddr: r.RemoteAddr,
+				Date:       time.Now(),
+				Father:     id,
+				Content:    html.EscapeString(r.Form.Get("content")),
+				ReplyNotif: r.Form.Get("notify") == "on",
 			}
 			if ok := func(comm *Comment) bool {
-				if len(comm.Info.Author) != 0 &&
-					len(comm.Info.Email) != 0 &&
+				if len(comm.Author) != 0 &&
+					len(comm.Email) != 0 &&
 					len(comm.Content) != 0 {
 					return true
 				}
@@ -51,11 +50,11 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 			}(newComm); !ok {
 				return nil
 			}
-			newComm.Info.Id = artMgr.allocCommentId()
+			newComm.Id = artMgr.allocCommentId()
 			// EventStart: newComment
 			artMgr.atomAppendComment(newComm)
 			go newCommentNotify(newComm)
-			db.syncComment(newComm)
+			db.sync(commentPrefix, newComm)
 			// EventEnd: newComment
 			return nil
 		}(); err != nil {
@@ -66,6 +65,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
 		"config":   config,
 		"article":  p,
+		"comments": artMgr.atomGetCommentList(p.Id),
 		"feedback": feedback,
 	})
 }

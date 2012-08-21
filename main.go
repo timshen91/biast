@@ -13,28 +13,38 @@ import (
 	"time"
 )
 
-type info struct {
-	Id         uint32
+type Article struct {
+	Id         aid
 	Author     string
 	Email      string
 	RemoteAddr string // I'm evil
 	Date       time.Time
-}
 
-type Article struct {
-	Info     info
-	Title    string
-	Content  string // RAW html
-	Comments []*Comment
+	Title   string
+	Content string // RAW html
 }
 
 type Comment struct {
-	Info    info
-	Father  uint32
-	Content string // plain text
+	Id         cid
+	Author     string
+	Email      string
+	RemoteAddr string // I'm evil
+	Date       time.Time
+
+	Father     aid
+	Content    string // plain text
+	ReplyNotif bool
 }
 
-var config map[string]string = make(map[string]string)
+func (this *Article) getId() uint32 {
+	return uint32(this.Id)
+}
+
+func (this *Comment) getId() uint32 {
+	return uint32(this.Id)
+}
+
+var config = map[string]string{}
 var tmpl *template.Template
 var logger *log.Logger
 var artMgr *manager
@@ -120,9 +130,9 @@ func checkKeyExist(m interface{}, args ...string) bool {
 	if value.Kind() != reflect.Map {
 		return false
 	}
-	tests := make(map[string]bool)
+	tests := make(map[string]struct{})
 	for _, s := range args {
-		tests[s] = true
+		tests[s] = struct{}{}
 	}
 	keys := value.MapKeys()
 	var count int

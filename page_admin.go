@@ -19,21 +19,18 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 				return errors.New("required field not exists")
 			}
 			form = &Article{
-				Info: info{
-					Author:     html.EscapeString(r.Form.Get("author")),
-					Email:      html.EscapeString(r.Form.Get("email")),
-					RemoteAddr: r.RemoteAddr,
-					Date:       time.Now(),
-				},
-				Title:    html.EscapeString(r.Form.Get("title")),
-				Content:  r.Form.Get("content"),
-				Comments: make([]*Comment, 0),
+				Author:     html.EscapeString(r.Form.Get("author")),
+				Email:      html.EscapeString(r.Form.Get("email")),
+				RemoteAddr: r.RemoteAddr,
+				Date:       time.Now(),
+				Title:      html.EscapeString(r.Form.Get("title")),
+				Content:    r.Form.Get("content"),
 			}
 			id := artMgr.allocArticleId()
-			form.Info.Id = id
+			form.Id = id
 			// EventStart: newArticle
 			artMgr.atomSetArticle(form)
-			db.syncArticle(form)
+			db.sync(articlePrefix, form)
 			go updateIndex()
 			// EventEnd: newArticle
 			return nil

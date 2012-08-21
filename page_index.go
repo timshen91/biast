@@ -12,7 +12,7 @@ var indexCacheMutex sync.RWMutex
 func updateIndex() {
 	// TODO pager
 	indexList := artMgr.atomGetAllArticles()
-	qsort(indexList, 0, len(indexList)-1)
+	qsortForArticleList(indexList, 0, len(indexList)-1)
 	indexCacheMutex.Lock()
 	indexCache.Reset()
 	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
@@ -33,7 +33,7 @@ func initPageIndex() {
 	updateIndex()
 }
 
-func qsort(a []*Article, l, r int) {
+func qsortForArticleList(a []*Article, l, r int) {
 	if l > r {
 		return
 	}
@@ -42,12 +42,12 @@ func qsort(a []*Article, l, r int) {
 	a[i], a[j] = a[j], a[i]
 	j = l
 	for i = l + 1; i <= r; i++ {
-		if a[i].Info.Id < a[l].Info.Id {
+		if a[i].Id < a[l].Id {
 			j++
 			a[j], a[i] = a[i], a[j]
 		}
 	}
 	a[j], a[l] = a[l], a[j]
-	qsort(a, l, j-1)
-	qsort(a, j+1, r)
+	qsortForArticleList(a, l, j-1)
+	qsortForArticleList(a, j+1, r)
 }

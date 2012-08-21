@@ -19,8 +19,8 @@
 {{define "_article"}}
 <div class="post">
 	<div class="article">
-		<h1><a href="/article/{{.Info.Id}}">{{.Title}}</a></h1>
-		<div class="meta">{{.Info.Author}} @ {{.Info.Date.String}}</div>
+		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
+		<div class="meta">{{.Author}} @ {{.Date.String}}</div>
 		<hr />
 		{{.Content}}
 		<hr />
@@ -33,7 +33,7 @@
 	<h1>Comments</h1>
 	{{range .}}
 		<div class="comment">
-			<div class="comment_author"><b>{{.Info.Author}}</b> @ {{.Info.Date}}</div>
+			<div class="comment_author"><b>{{.Author}}</b> @ {{.Date}}</div>
 			<hr />
 			{{.Content}}
 		</div>
@@ -44,7 +44,7 @@
 {{define "article"}}
 {{template "_header" .config}}
 {{template "_article" .article}}
-{{template "_comment" .article.Comments}}
+{{template "_comment" .comments}}
 <div class="post_form">
 	<span style="color:red">{{.feedback}}</span>
 	<h1>Post a comment</h1>
@@ -62,6 +62,10 @@
 				<textarea name="content"></textarea>
 			</p>
 			<input type="submit" value="Send" name="post">
+			<p>
+				<input type="checkbox" name="notify" checked="checked">
+				<label for="notify">Email Notification when replied</label>
+			</p>
 		</form>
 	</div>
 </div>
@@ -89,11 +93,11 @@
 			</p>
 			<p>
 				<label for="author">Author</label><br/>
-				<input name="author" value="{{.form.Info.Author}}">
+				<input name="author" value="{{.form.Author}}">
 			</p>
 			<p>
 				<label for="email">Email</label><br/>
-				<input name="email" value="{{.form.Info.Email}}">
+				<input name="email" value="{{.form.Email}}">
 			</p>
 			<p>
 				<label for="text">Content (plain html)</label><br/>

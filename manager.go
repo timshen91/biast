@@ -1,58 +1,54 @@
 package main
 
 import (
-	"sort"
-	"sync"
+	"encoding/json"
 	"sync/atomic"
 )
 
-type commentList []*Comment
+type aid uint32
+type cid uint32
 
-type manager struct {
-	mutex       []sync.RWMutex
-	articles    map[uint32]*Article
-	articleHead uint32
-	commentHead uint32
+type manager struct { // assume pointer assignment is atomic
+	articles     map[aid]*Article
+	comments     map[cid]*Comment
+	commentLists map[aid][]*Comment
+	articleHead  aid
+	commentHead  cid
 }
 
 func newArticleMgr(db dbSync, poolSize int) *manager {
 	ret := &manager{
-		articles:    map[uint32]*Article{},
-		articleHead: 0,
-		commentHead: 0,
-		mutex:       make([]sync.RWMutex, poolSize),
+		articles:     map[aid]*Article{},
+		comments:     map[cid]*Comment{},
+		commentLists: map[aid][]*Comment{},
+		articleHead:  0,
+		commentHead:  0,
 	}
-	artList := db.getArticles()
-	for _, p := range artList {
-		ret.articles[p.Info.Id] = p
-		p.Comments = make([]*Comment, 0)
-		if ret.articleHead < p.Info.Id {
-			ret.articleHead = p.Info.Id
+	for _, bts := range db.getStrList(articlePrefix) {
+		var p *Article
+		json.Unmarshal(bts, &p)
+		ret.articles[p.Id] = p
+		if ret.articleHead < p.Id {
+			ret.articleHead = p.Id
 		}
 	}
-	commList := db.getComments()
-	for _, p := range commList {
-		f, ok := ret.articles[p.Father]
-		if !ok {
-			logger.Println("comment without a father:", p)
-			continue
-		}
-		f.Comments = append(f.Comments, p)
-		if ret.commentHead < p.Info.Id {
-			ret.commentHead = p.Info.Id
+	for _, bts := range db.getStrList(commentPrefix) {
+		var p *Comment
+		json.Unmarshal(bts, &p)
+		ret.comments[p.Id] = p
+		ret.commentLists[p.Father] = append(ret.commentLists[p.Father], p)
+		if ret.commentHead < p.Id {
+			ret.commentHead = p.Id
 		}
 	}
-	for _, p := range artList {
-		var temp commentList = p.Comments
-		sort.Sort(temp)
+	for _, p := range ret.commentLists {
+		qsortForCommentList(p, 0, len(p)-1)
 	}
 	return ret
 }
 
-func (this *manager) atomGetArticle(id uint32) *Article {
-	this.mutex[id%uint32(len(this.mutex))].RLock()
+func (this *manager) atomGetArticle(id aid) *Article {
 	ret, ok := this.articles[id]
-	this.mutex[id%uint32(len(this.mutex))].RUnlock()
 	if !ok {
 		return nil
 	}
@@ -60,54 +56,66 @@ func (this *manager) atomGetArticle(id uint32) *Article {
 }
 
 func (this *manager) atomSetArticle(p *Article) {
-	id := p.Info.Id
-	this.mutex[id%uint32(len(this.mutex))].Lock()
+	id := p.Id
 	this.articles[id] = p
-	this.mutex[id%uint32(len(this.mutex))].Unlock()
 }
 
-func (this *manager) atomAppendComment(p *Comment) {
-	id := p.Father
-	this.mutex[id%uint32(len(this.mutex))].Lock()
-	art := this.articles[id]
-	art.Comments = append(art.Comments, p)
-	this.mutex[id%uint32(len(this.mutex))].Unlock()
-}
-
-func (this *manager) atomGetAllArticles() []*Article {
-	ret := make([]*Article, 0)
-	for _, p := range this.mutex {
-		p.RLock()
-	}
-	for _, p := range this.articles {
-		ret = append(ret, p)
-	}
-	for _, p := range this.mutex {
-		p.RUnlock()
+func (this *manager) atomGetComment(id cid) *Comment {
+	ret, ok := this.comments[id]
+	if !ok {
+		return nil
 	}
 	return ret
 }
 
-func (this *manager) allocArticleId() uint32 {
-	return allocId(&this.articleHead)
+func (this *manager) atomGetCommentList(id aid) []*Comment {
+	ret, ok := this.commentLists[id]
+	if !ok {
+		return nil
+	}
+	return ret
 }
 
-func (this *manager) allocCommentId() uint32 {
-	return allocId(&this.commentHead)
+func (this *manager) atomAppendComment(p *Comment) { // FIXME probably not safe
+	id := p.Father
+	this.commentLists[id] = append(this.commentLists[id], p)
+}
+
+func (this *manager) atomGetAllArticles() []*Article {
+	ret := make([]*Article, 0)
+	for _, p := range this.articles {
+		ret = append(ret, p)
+	}
+	return ret
+}
+
+func (this *manager) allocArticleId() aid {
+	return aid(allocId((*uint32)(&(this.articleHead))))
+}
+
+func (this *manager) allocCommentId() cid {
+	return cid(allocId((*uint32)(&this.commentHead)))
 }
 
 func allocId(head *uint32) uint32 {
 	return atomic.AddUint32(head, 1)
 }
 
-func (this commentList) Len() int {
-	return len(this)
-}
-
-func (this commentList) Less(i, j int) bool {
-	return this[i].Info.Date.Unix() < this[j].Info.Date.Unix()
-}
-
-func (this commentList) Swap(i, j int) {
-	this[i], this[j] = this[j], this[i]
+func qsortForCommentList(a []*Comment, l, r int) {
+	if l > r {
+		return
+	}
+	i := l
+	j := (r-l)/2 + l
+	a[i], a[j] = a[j], a[i]
+	j = l
+	for i = l + 1; i <= r; i++ {
+		if a[i].Id < a[l].Id {
+			j++
+			a[j], a[i] = a[i], a[j]
+		}
+	}
+	a[j], a[l] = a[l], a[j]
+	qsortForCommentList(a, l, j-1)
+	qsortForCommentList(a, j+1, r)
 }
