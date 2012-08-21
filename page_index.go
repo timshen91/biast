@@ -3,42 +3,51 @@ package main
 import (
 	"bytes"
 	"net/http"
-	"sort"
+	"sync"
 )
 
-type listForSort []*Article
-
-func (this listForSort) Len() int {
-	return len(this)
-}
-
-func (this listForSort) Less(i, j int) bool {
-	return this[i].Info.Date.Unix() > this[j].Info.Date.Unix() // from lastest to the oldest
-}
-
-func (this listForSort) Swap(i, j int) {
-	this[i], this[j] = this[j], this[i]
-}
-
-var indexList listForSort
 var indexCache bytes.Buffer
+var indexCacheMutex sync.RWMutex
 
 func updateIndex() {
 	// TODO pager
-	indexList = artMgr.atomGetAllArticles()
-	sort.Sort(indexList)
+	indexList := artMgr.atomGetAllArticles()
+	qsort(indexList, 0, len(indexList)-1)
+	indexCacheMutex.Lock()
 	indexCache.Reset()
 	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
 		"config":   config,
 		"articles": indexList,
 	})
+	indexCacheMutex.Unlock()
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	indexCacheMutex.RLock()
 	w.Write(indexCache.Bytes())
+	indexCacheMutex.RUnlock()
 }
 
 func initPageIndex() {
 	http.HandleFunc(config["RootUrl"], indexHandler)
 	updateIndex()
+}
+
+func qsort(a []*Article, l, r int) {
+	if l > r {
+		return
+	}
+	i := l
+	j := (r-l)/2 + l
+	a[i], a[j] = a[j], a[i]
+	j = l
+	for i = l + 1; i <= r; i++ {
+		if a[i].Info.Id < a[l].Info.Id {
+			j++
+			a[j], a[i] = a[i], a[j]
+		}
+	}
+	a[j], a[l] = a[l], a[j]
+	qsort(a, l, j-1)
+	qsort(a, j+1, r)
 }
