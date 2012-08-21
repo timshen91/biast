@@ -31,9 +31,11 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 			}
 			id := artMgr.allocArticleId()
 			form.Info.Id = id
-			artMgr.atomSet(form)
+			// EventStart: newArticle
+			artMgr.atomSetArticle(form)
 			db.syncArticle(form)
 			updateIndex()
+			// EventEnd: newArticle
 			return nil
 		}(); err != nil {
 			feedback = "Oops...! " + err.Error()

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"reflect"
 	"runtime"
 	"strings"
@@ -23,14 +24,14 @@ type info struct {
 type Article struct {
 	Info     info
 	Title    string
-	Content  string // plain html
+	Content  string // RAW html
 	Comments []*Comment
 }
 
 type Comment struct {
 	Info    info
 	Father  uint32
-	Content string // plain html
+	Content string // plain text
 }
 
 var config map[string]string = make(map[string]string)
@@ -38,29 +39,6 @@ var tmpl *template.Template
 var logger *log.Logger
 var artMgr *manager
 var db dbSync
-
-func checkKeyExist(m interface{}, args ...string) bool {
-	value := reflect.ValueOf(m)
-	if value.Kind() != reflect.Map {
-		return false
-	}
-	tests := make(map[string]bool)
-	for _, s := range args {
-		tests[s] = true
-	}
-	keys := value.MapKeys()
-	var count int
-	for i := range keys {
-		_, ok := tests[keys[i].String()]
-		if ok {
-			count++
-		}
-	}
-	if count == len(args) {
-		return true
-	}
-	return false
-}
 
 func main() {
 	// config init
@@ -119,7 +97,43 @@ func main() {
 	initPageIndex()
 	initPageArticle()
 	initPageAdmin()
+	initSendMail()
 	logger.Println("Server start")
-	defer logger.Println("Server halt")
+	go func() {
+		ch := make(chan os.Signal)
+		signal.Notify(ch)
+		for {
+			switch sig := <-ch; sig {
+			case os.Interrupt:
+				fallthrough
+			case os.Kill:
+				logger.Println("Server halt")
+				os.Exit(0)
+			}
+		}
+	}()
 	http.ListenAndServe(config["ServerAddr"], nil)
+}
+
+func checkKeyExist(m interface{}, args ...string) bool {
+	value := reflect.ValueOf(m)
+	if value.Kind() != reflect.Map {
+		return false
+	}
+	tests := make(map[string]bool)
+	for _, s := range args {
+		tests[s] = true
+	}
+	keys := value.MapKeys()
+	var count int
+	for i := range keys {
+		_, ok := tests[keys[i].String()]
+		if ok {
+			count++
+		}
+	}
+	if count == len(args) {
+		return true
+	}
+	return false
 }

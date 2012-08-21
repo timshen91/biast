@@ -6,6 +6,8 @@ import (
 	"sync/atomic"
 )
 
+type commentList []*Comment
+
 type manager struct {
 	mutex       []sync.RWMutex
 	articles    map[uint32]*Article
@@ -15,12 +17,12 @@ type manager struct {
 
 func newArticleMgr(db dbSync, poolSize int) *manager {
 	ret := &manager{
-		articles: map[uint32]*Article{},
-		articleHead : 0,
-		commentHead : 0,
-		mutex : make([]sync.RWMutex, poolSize),
+		articles:    map[uint32]*Article{},
+		articleHead: 0,
+		commentHead: 0,
+		mutex:       make([]sync.RWMutex, poolSize),
 	}
-	artList, commList := db.getAll()
+	artList := db.getArticles()
 	for _, p := range artList {
 		ret.articles[p.Info.Id] = p
 		p.Comments = make([]*Comment, 0)
@@ -28,6 +30,7 @@ func newArticleMgr(db dbSync, poolSize int) *manager {
 			ret.articleHead = p.Info.Id
 		}
 	}
+	commList := db.getComments()
 	for _, p := range commList {
 		f, ok := ret.articles[p.Father]
 		if !ok {
@@ -46,32 +49,32 @@ func newArticleMgr(db dbSync, poolSize int) *manager {
 	return ret
 }
 
-func (this *manager) atomGet(id uint32) *Article {
-	this.mutex[id % uint32(len(this.mutex))].RLock()
+func (this *manager) atomGetArticle(id uint32) *Article {
+	this.mutex[id%uint32(len(this.mutex))].RLock()
 	ret, ok := this.articles[id]
-	this.mutex[id % uint32(len(this.mutex))].RUnlock()
+	this.mutex[id%uint32(len(this.mutex))].RUnlock()
 	if !ok {
 		return nil
 	}
 	return ret
 }
 
-func (this *manager) atomSet(p *Article) {
+func (this *manager) atomSetArticle(p *Article) {
 	id := p.Info.Id
-	this.mutex[id % uint32(len(this.mutex))].Lock()
+	this.mutex[id%uint32(len(this.mutex))].Lock()
 	this.articles[id] = p
-	this.mutex[id % uint32(len(this.mutex))].Unlock()
+	this.mutex[id%uint32(len(this.mutex))].Unlock()
 }
 
 func (this *manager) atomAppendComment(p *Comment) {
 	id := p.Father
-	this.mutex[id % uint32(len(this.mutex))].Lock()
+	this.mutex[id%uint32(len(this.mutex))].Lock()
 	art := this.articles[id]
 	art.Comments = append(art.Comments, p)
-	this.mutex[id % uint32(len(this.mutex))].Unlock()
+	this.mutex[id%uint32(len(this.mutex))].Unlock()
 }
 
-func (this *manager) values() []*Article {
+func (this *manager) atomGetAllArticles() []*Article {
 	ret := make([]*Article, 0)
 	for _, p := range this.mutex {
 		p.RLock()
@@ -85,10 +88,6 @@ func (this *manager) values() []*Article {
 	return ret
 }
 
-func allocId(head *uint32) uint32 {
-	return atomic.AddUint32(head, 1)
-}
-
 func (this *manager) allocArticleId() uint32 {
 	return allocId(&this.articleHead)
 }
@@ -97,7 +96,9 @@ func (this *manager) allocCommentId() uint32 {
 	return allocId(&this.commentHead)
 }
 
-type commentList []*Comment
+func allocId(head *uint32) uint32 {
+	return atomic.AddUint32(head, 1)
+}
 
 func (this commentList) Len() int {
 	return len(this)

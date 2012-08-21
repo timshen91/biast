@@ -17,7 +17,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	p := artMgr.atomGet(id)
+	p := artMgr.atomGetArticle(id)
 	if p == nil {
 		logger.Println("404 for an nonexist id")
 		http.NotFound(w, r)
@@ -46,8 +46,11 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 				// TODO comment filter
 			}
 			newComm.Info.Id = artMgr.allocCommentId()
+			// EventStart: newComment
 			artMgr.atomAppendComment(newComm)
+			newCommentNotify(newComm)
 			db.syncComment(newComm)
+			// EventEnd: newComment
 			return nil
 		}(); err != nil {
 			logger.Println(r.RemoteAddr+":", err.Error())

@@ -10,13 +10,17 @@ import (
 const (
 	articlePrefix = "article"
 	commentPrefix = "comment"
+	notiPrefix    = "comment"
 	queueSize     = 16
 )
 
 type dbSync interface {
-	getAll() ([]*Article, []*Comment)
-	syncArticle(ptr *Article)
-	syncComment(ptr *Comment)
+	getArticles() []*Article
+	syncArticle(*Article)
+	syncComment(*Comment)
+	getComments() []*Comment
+	syncNotiInfo(*Noti)
+	getNotiInfo() []*Noti
 	reset()
 }
 
@@ -50,42 +54,15 @@ func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
 	return ret, nil
 }
 
-func (this *redisSync) getAll() ([]*Article, []*Comment) {
-	var articleList []*Article
-	{
-		strs, err := this.cli.Keys(articlePrefix + "*")
-		if err != nil {
-			logger.Println("redisSync:", err.Error())
-			return nil, nil
-		}
-		for _, id := range strs {
-			str, err := this.cli.Get(id)
-			if err != nil {
-				return nil, nil
-			}
-			var v Article
-			json.Unmarshal([]byte(str), &v)
-			articleList = append(articleList, &v)
-		}
-	}
-	var commentList []*Comment
-	{
-		strs, err := this.cli.Keys(commentPrefix + "*")
-		if err != nil {
-			logger.Println("redisSync:", err.Error())
-			return nil, nil
-		}
-		for _, id := range strs {
-			str, err := this.cli.Get(id)
-			if err != nil {
-				return nil, nil
-			}
-			var v Comment
-			json.Unmarshal([]byte(str), &v)
-			commentList = append(commentList, &v)
-		}
-	}
-	return articleList, commentList
+func (this *redisSync) getArticles() []*Article {
+	var ret []*Article
+	var temp *Article
+	this.getStrList(articlePrefix, func(str []byte) {
+		temp = nil
+		json.Unmarshal(str, &temp)
+		ret = append(ret, temp)
+	})
+	return ret
 }
 
 func (this *redisSync) syncArticle(article *Article) {
@@ -98,6 +75,17 @@ func (this *redisSync) syncArticle(article *Article) {
 	this.queue <- &syncEvent{articlePrefix + fmt.Sprint(data.Info.Id), string(bts)}
 }
 
+func (this *redisSync) getComments() []*Comment {
+	var ret []*Comment
+	var temp *Comment
+	this.getStrList(commentPrefix, func(str []byte) {
+		temp = nil
+		json.Unmarshal(str, &temp)
+		ret = append(ret, temp)
+	})
+	return ret
+}
+
 func (this *redisSync) syncComment(comment *Comment) {
 	bts, err := json.Marshal(comment)
 	if err != nil {
@@ -106,8 +94,42 @@ func (this *redisSync) syncComment(comment *Comment) {
 	this.queue <- &syncEvent{commentPrefix + fmt.Sprint(comment.Info.Id), string(bts)}
 }
 
+func (this *redisSync) getNotiInfo() []*Noti {
+	var ret []*Noti
+	var temp *Noti
+	this.getStrList(notiPrefix, func(str []byte) {
+		temp = nil
+		json.Unmarshal(str, &temp)
+		ret = append(ret, temp)
+	})
+	return ret
+}
+
+func (this *redisSync) syncNotiInfo(p *Noti) {
+}
+
 func (this *redisSync) reset() {
 	this.cli.Disconnect()
+}
+
+func (this *redisSync) getStrList(prefix string, callback func([]byte)) {
+	strs, err := this.cli.Keys(prefix + "*")
+	if err != nil {
+		logger.Println("redisSync:", err.Error())
+		return
+	}
+	for _, id := range strs {
+		str, err := this.cli.Get(id)
+		if err != nil {
+			logger.Println("redisSync:", err.Error())
+			continue
+		}
+		// v = nil
+		// json.Unmarshal([]byte(str), &v)
+		// list = append(list, &v)
+		callback([]byte(str))
+	}
+	return
 }
 
 func (this *redisSync) sync() {

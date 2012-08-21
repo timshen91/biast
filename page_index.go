@@ -25,7 +25,7 @@ var indexCache bytes.Buffer
 
 func updateIndex() {
 	// TODO pager
-	indexList = artMgr.values()
+	indexList = artMgr.atomGetAllArticles()
 	sort.Sort(indexList)
 	indexCache.Reset()
 	tmpl.ExecuteTemplate(&indexCache, "index", map[string]interface{}{
