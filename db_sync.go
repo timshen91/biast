@@ -136,6 +136,7 @@ func (this *redisSync) sync() {
 	for {
 		data := <-this.queue
 		err := this.cli.Set(data.id, data.str)
+		println(data.id, data.str)
 		if err != nil {
 			logger.Println("redisSync:", err.Error())
 		}

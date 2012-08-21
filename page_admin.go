@@ -34,7 +34,7 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 			// EventStart: newArticle
 			artMgr.atomSetArticle(form)
 			db.syncArticle(form)
-			updateIndex()
+			go updateIndex()
 			// EventEnd: newArticle
 			return nil
 		}(); err != nil {

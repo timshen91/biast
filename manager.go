@@ -38,8 +38,8 @@ func newArticleMgr(db dbSync, poolSize int) *manager {
 			continue
 		}
 		f.Comments = append(f.Comments, p)
-		if ret.articleHead < p.Info.Id {
-			ret.articleHead = p.Info.Id
+		if ret.commentHead < p.Info.Id {
+			ret.commentHead = p.Info.Id
 		}
 	}
 	for _, p := range artList {

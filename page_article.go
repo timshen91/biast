@@ -41,14 +41,20 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 				Content: html.EscapeString(r.Form.Get("content")),
 			}
 			if ok := func(comm *Comment) bool {
-				return true
+				if len(comm.Info.Author) != 0 &&
+					len(comm.Info.Email) != 0 &&
+					len(comm.Content) != 0 {
+					return true
+				}
+				feedback = "name, email and content can't be blank"
+				return false
 			}(newComm); !ok {
-				// TODO comment filter
+				return nil
 			}
 			newComm.Info.Id = artMgr.allocCommentId()
 			// EventStart: newComment
 			artMgr.atomAppendComment(newComm)
-			newCommentNotify(newComm)
+			go newCommentNotify(newComm)
 			db.syncComment(newComm)
 			// EventEnd: newComment
 			return nil

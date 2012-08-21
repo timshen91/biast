@@ -46,6 +46,7 @@
 {{template "_article" .article}}
 {{template "_comment" .article.Comments}}
 <div class="post_form">
+	<span style="color:red">{{.feedback}}</span>
 	<h1>Post a comment</h1>
 	<div class="form">
 		<form method="post">
