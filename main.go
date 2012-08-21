@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 	"text/template"
 	"time"
@@ -102,7 +103,7 @@ func main() {
 		panic(err1.Error())
 	}
 	// article manager and db init
-	artMgr = newArticleMgr(db)
+	artMgr = newArticleMgr(db, runtime.NumCPU())
 	// logger
 	if _, ok := config["LogPath"]; ok {
 		logWriter, err := os.OpenFile(config["LogPath"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
