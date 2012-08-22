@@ -1,3 +1,7 @@
+## useage
+
+/etc/biast.conf is needed. biast.conf is an example.
+
 ## a blog system
 
 It's just a practice for our web application.
