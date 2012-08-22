@@ -14,7 +14,7 @@ func newCommentNotify(comm *Comment) {
 
 var mailAuth smtp.Auth
 
-func initSendMail() {
+func init() {
 	if _, ok := config["SMTPUsername"]; !ok {
 		config["SMTPUsername"] = ""
 	}

@@ -23,7 +23,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(indexCache.Bytes())
 }
 
-func initPageIndex() {
+func init() {
 	http.HandleFunc(config["RootUrl"], indexHandler)
 	updateIndex()
 }

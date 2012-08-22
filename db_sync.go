@@ -3,17 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nokivan/redis.go"
+	"github.com/nokivan/redisgo"
 	"strconv"
 )
+
+type prefixType string
 
 const (
 	articlePrefix prefixType = "article"
 	commentPrefix            = "comment"
 	queueSize                = 16
 )
-
-type prefixType string
 
 type hasId interface {
 	getId() uint32

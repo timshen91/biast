@@ -51,6 +51,24 @@ var artMgr *manager
 var db dbSync
 
 func main() {
+	logger.Println("Server start")
+	go func() {
+		ch := make(chan os.Signal)
+		signal.Notify(ch)
+		for {
+			switch sig := <-ch; sig {
+			case os.Interrupt:
+				fallthrough
+			case os.Kill:
+				logger.Println("Server halt")
+				os.Exit(0)
+			}
+		}
+	}()
+	http.ListenAndServe(config["ServerAddr"], nil)
+}
+
+func init() {
 	// config init
 	buff, err := ioutil.ReadFile("/etc/biast.conf")
 	if err != nil {
@@ -98,27 +116,6 @@ func main() {
 	} else {
 		logger = log.New(os.Stderr, "biast: ", log.LstdFlags|log.Lshortfile)
 	}
-
-	// modules init
-	initPageIndex()
-	initPageArticle()
-	initPageAdmin()
-	initSendMail()
-	logger.Println("Server start")
-	go func() {
-		ch := make(chan os.Signal)
-		signal.Notify(ch)
-		for {
-			switch sig := <-ch; sig {
-			case os.Interrupt:
-				fallthrough
-			case os.Kill:
-				logger.Println("Server halt")
-				os.Exit(0)
-			}
-		}
-	}()
-	http.ListenAndServe(config["ServerAddr"], nil)
 }
 
 func checkKeyExist(m interface{}, args ...string) bool {
