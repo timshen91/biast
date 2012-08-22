@@ -100,11 +100,8 @@ func init() {
 	http.Handle(config["ImageUrl"], http.StripPrefix(config["ImageUrl"], http.FileServer(http.Dir(config["ImagePath"]))))
 	// template init
 	tmpl = template.Must(template.ParseGlob(config["TemplatePath"] + "*.html"))
-	var err1 error
-	if db, err1 = newRedisSync(config["DbAddr"], config["DbPass"], config["DbId"]); err1 != nil {
-		panic(err1.Error())
-	}
 	// article manager and db init
+	initDb()
 	artMgr = newArticleMgr(db, runtime.NumCPU())
 	// logger
 	if _, ok := config["LogPath"]; ok {

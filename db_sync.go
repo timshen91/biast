@@ -15,13 +15,13 @@ const (
 	queueSize                = 16
 )
 
-type hasId interface {
+type whoHasId interface {
 	getId() uint32
 }
 
 type dbSync interface {
 	getStrList(prefixType) [][]byte
-	sync(prefixType, hasId)
+	sync(prefixType, whoHasId)
 }
 
 type redisSync struct {
@@ -31,7 +31,7 @@ type redisSync struct {
 
 type syncReq struct {
 	prefix prefixType
-	data   hasId
+	data   whoHasId
 }
 
 func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
@@ -50,7 +50,19 @@ func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
 	if err := ret.cli.Connect(); err != nil {
 		return nil, err
 	}
-	go ret.worker()
+	go func() {
+		for {
+			req := <-ret.queue
+			bts, err := json.Marshal(req.data)
+			if err != nil {
+				logger.Println("redisSync:", err.Error())
+				continue
+			}
+			if err := ret.cli.Set([]byte(string(req.prefix)+fmt.Sprint(req.data.getId())), bts); err != nil {
+				logger.Println("redisSync:", err.Error())
+			}
+		}
+	}()
 	return ret, nil
 }
 
@@ -72,20 +84,13 @@ func (this *redisSync) getStrList(prefix prefixType) [][]byte {
 	return ret
 }
 
-func (this *redisSync) sync(prefix prefixType, data hasId) {
+func (this *redisSync) sync(prefix prefixType, data whoHasId) {
 	this.queue <- &syncReq{prefix, data}
 }
 
-func (this *redisSync) worker() {
-	for {
-		req := <-this.queue
-		bts, err := json.Marshal(req.data)
-		if err != nil {
-			logger.Println("redisSync:", err.Error())
-			continue
-		}
-		if err := this.cli.Set([]byte(string(req.prefix)+fmt.Sprint(req.data.getId())), bts); err != nil {
-			logger.Println("redisSync:", err.Error())
-		}
+func initDb() {
+	var err error
+	if db, err = newRedisSync(config["DbAddr"], config["DbPass"], config["DbId"]); err != nil {
+		panic(err.Error())
 	}
 }
