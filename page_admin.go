@@ -49,6 +49,6 @@ func initPageAdmin() {
 	if config["AdminUrl"][len(config["AdminUrl"])-1] != '/' {
 		config["AdminUrl"] += "/"
 	}
-	http.HandleFunc(config["RootUrl"]+config["AdminUrl"]+"new", newArticle)
+	http.HandleFunc(config["RootUrl"]+config["AdminUrl"], newArticle)
 	// http.HandleFunc(config["AdminUrl"] + "modify", modifyArticle)
 }
