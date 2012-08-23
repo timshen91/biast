@@ -48,8 +48,8 @@ func genArticle(r *http.Request) (*Article, error) {
 }
 
 func init() {
-	if config["AdminUrl"][len(config["AdminUrl"])-1] != '/' {
-		config["AdminUrl"] += "/"
+	if config["AdminUrl"][len(config["AdminUrl"])-1] == '/' {
+		config["AdminUrl"] = config["AdminUrl"][:len(config["AdminUrl"])-1]
 	}
 	http.HandleFunc(config["RootUrl"]+config["AdminUrl"], newArticle)
 	// http.HandleFunc(config["AdminUrl"] + "modify", modifyArticle)
