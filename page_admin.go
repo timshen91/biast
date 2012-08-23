@@ -16,17 +16,19 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 		var err error
 		if article, err = genArticle(r); err != nil {
 			feedback = "Oops...! " + err.Error()
+		} else {
+			// EventStart: newArticle
+			artMgr.setArticle(article)
+			db.sync(articlePrefix, article)
+			go updateIndexAndFeed()
+			// EventEnd: newArticle
 		}
-		// EventStart: newArticle
-		artMgr.atomSetArticle(article)
-		db.sync(articlePrefix, article)
-		go updateIndexAndFeed()
-		// EventEnd: newArticle
 	}
 	tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
 		"form":     article,
+		"header":   "new",
 	})
 }
 

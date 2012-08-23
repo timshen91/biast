@@ -11,14 +11,14 @@ var feedCache *bytes.Buffer
 
 func updateIndexAndFeed() {
 	// TODO pager
-	indexList := artMgr.atomGetAllArticles()
+	indexList := artMgr.getArticleList()
 	qsortForArticleList(indexList, 0, len(indexList)-1)
 	// index
 	newIndexCache := &bytes.Buffer{}
 	tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
-		"config":    config,
-		"articles":  indexList,
-		"lastBuild": time.Now().String(),
+		"config":   config,
+		"articles": indexList,
+		"header":   config["ServerName"],
 	})
 	indexCache = newIndexCache
 	newFeedCache := &bytes.Buffer{}

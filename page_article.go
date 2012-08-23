@@ -37,7 +37,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	p := artMgr.atomGetArticle(id)
+	p := artMgr.getArticle(id)
 	if p == nil {
 		logger.Println("404 for an nonexist id")
 		http.NotFound(w, r)
@@ -50,18 +50,20 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Println(r.RemoteAddr+":", err.Error())
 			feedback = "Oops...! " + err.Error()
+		} else {
+			// EventStart: newComment
+			artMgr.appendComment(comm)
+			db.sync(commentPrefix, comm)
+			go newCommentNotify(comm)
+			// EventEnd: newComment
 		}
-		// EventStart: newComment
-		artMgr.atomAppendComment(comm)
-		db.sync(commentPrefix, comm)
-		go newCommentNotify(comm)
-		// EventEnd: newComment
 	}
 	tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
 		"config":   config,
 		"article":  p,
-		"comments": artMgr.atomGetCommentList(p.Id),
+		"comments": artMgr.getCommentList(p.Id),
 		"feedback": feedback,
+		"header":   p.Title,
 	})
 }
 

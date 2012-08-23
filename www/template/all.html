@@ -1,111 +1,115 @@
-{{define "_header"}}
+{{define "_header"}}<!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="{{.RootUrl}}css/style.css">
-		<title>{{.ServerName}}</title>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap-responsive.css"/>
+		<link rel="stylesheet" href="{{.config.RootUrl}}css/style.css"/>
+		<link rel="alternate" type="application/rss+xml" href="/feed">
+		<title>{{.header}}</title>
 	</head>
 	<body>
-		<div class="site-container">
+		<div class="banner">
+			<div class="container">
+				<a href="{{.config.RootUrl}}">
+					<img src="{{.config.RootUrl}}image/Logo.png" />
+				</a>
+			</div>
+		</div>
+		<div class="container">
 {{end}}
 
 {{define "_footer"}}
 		</div>
+		<script src="{{.RootUrl}}js/bootstrap.min.js"></script>
 	</body>
 </html>
 {{end}}
 
 {{define "_article"}}
-<div class="post">
-	<div class="article">
+<div class="article">
+	<div class="title">
 		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
-		<div class="meta">{{.Author}} @ {{.Date.String}}</div>
-		<hr />
-		{{.Content}}
-		<hr />
 	</div>
+	<div class="article_meta">
+		{{.Author}} @ {{.Date.String}}
+	</div>
+	<hr/>
+	{{.Content}}
+	<hr/>
 </div>
 {{end}}
 
 {{define "_comment"}}
-<div class="comments">
-	<h1>Comments</h1>
-	{{range .}}
-		<div class="comment">
-			<div class="comment_author"><b>{{.Author}}</b> @ {{.Date}}</div>
-			<hr />
-			{{.Content}}
+<h2>Comments</h2>
+<hr/>
+{{range .}}
+	<div class="comment">
+		<div class="comment_meta">
+			{{.Author}} @ {{.Date}}
 		</div>
-	{{end}}
-</div>
+		{{.Content}}
+	</div>
+	<hr/>
+{{end}}
 {{end}}
 
 {{define "article"}}
-{{template "_header" .config}}
+{{template "_header" .}}
 {{template "_article" .article}}
 {{template "_comment" .comments}}
-<div class="post_form">
-	<span style="color:red">{{.feedback}}</span>
-	<h1>Post a comment</h1>
-	<div class="form">
-		<form method="post">
-			<p>
-				<input name="author">
-				<label for="author">Name</label>
-			</p>
-			<p>
-				<input name="email">
-				<label for="email">Email</label>
-			</p>
-			<p>
-				<textarea name="content"></textarea>
-			</p>
-			<input type="submit" value="Send" name="post">
-			<p>
-				<input type="checkbox" name="notify" checked="checked">
-				<label for="notify">Email Notification when replied</label>
-			</p>
-		</form>
-	</div>
-</div>
-{{template "_footer" .}}
+<span style="color:red">{{.feedback}}</span>
+<form class="post_form" method="post">
+	<legend>Post a comment</legend>
+	<p>
+		<label for="author"><input name="author"/>Name</label>
+	</p>
+	<p>
+		<label for="email"><input name="email"/>Email</label>
+	</p>
+	<p>
+		<textarea rows="10" name="content"></textarea>
+	</p>
+	<p>
+		<button type="submit" class="btn btn-primary" name="post">Send</button>
+		<label class="checkbox inline" for="notify">
+			<input type="checkbox" name="notify" checked="checked">Send Email Notification when replied
+		</label>
+	</p>
+</form>
+{{template "_footer" .config}}
 {{end}}
 
 {{define "index"}}
-{{template "_header" .config}}
+{{template "_header" .}}
 {{range .articles}}
 	{{template "_article" .}}
 {{end}}
-{{template "_footer" .}}
+{{template "_footer" .config}}
 {{end}}
 
 {{define "new"}}
-{{template "_header" .config}}
-<div class="post_form">
-	<span style="color:red">{{.feedback}}</span>
-	<h1>Post an article</h1>
-	<div class="form">
-		<form method="post">
-			<p>
-				<label for="title">Title</label><br/>
-				<input name="title" value="{{.form.Title}}">
-			</p>
-			<p>
-				<label for="author">Author</label><br/>
-				<input name="author" value="{{.form.Author}}">
-			</p>
-			<p>
-				<label for="email">Email</label><br/>
-				<input name="email" value="{{.form.Email}}">
-			</p>
-			<p>
-				<label for="text">Content (plain html)</label><br/>
-				<textarea name="content">{{.form.Content}}</textarea>
-			</p>
-			<input type="submit" value="Submit" onclick="document.forms[0].target = '';" name="post">
-		</div>
-	</form>
-</div>
-{{template "_footer" .server}}
+{{template "_header" .}}
+<span style="color:red">{{.feedback}}</span>
+<form class="post_form" method="post">
+	<legend>Post an article</legend>
+	<p>
+		<label for="title"><input name="title" value="{{.form.Title}}">Title</label>
+	</p>
+	<p>
+		<label for="author"><input name="author" value="{{.form.Author}}">Author</label>
+	</p>
+	<p>
+		<label for="email"><input name="email" value="{{.form.Email}}">Email</label>
+	</p>
+	<p>
+		<label for="text">Content (plain html)</label>
+		<textarea rows="10" name="content">{{.form.Content}}</textarea>
+	</p>
+	<p>
+		<button type="submit" class="btn btn-primary" onclick="document.forms[0].target = '';" name="post">Submit</button>
+	</p>
+</form>
+{{template "_footer" .config}}
 {{end}}

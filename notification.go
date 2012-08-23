@@ -2,11 +2,13 @@ package main
 
 import (
 	"net/smtp"
+
+//	"exp/html"
 )
 
 func newCommentNotify(comm *Comment) {
 	for _, id := range parseRef(comm.Content) {
-		if p := artMgr.atomGetComment(id); p != nil && p.ReplyNotif {
+		if p := artMgr.getComment(id); p != nil && p.ReplyNotif {
 			send(p.Email, "notification\n")
 		}
 	}

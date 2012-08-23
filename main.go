@@ -115,6 +115,7 @@ biast /path/to/config/file`)
 		config["RootUrl"] += "/"
 	}
 	static := http.FileServer(http.Dir(config["DocumentPath"] + "static/"))
+	http.Handle(config["RootUrl"]+"js/", http.StripPrefix(config["RootUrl"], static))
 	http.Handle(config["RootUrl"]+"css/", http.StripPrefix(config["RootUrl"], static))
 	http.Handle(config["RootUrl"]+"image/", http.StripPrefix(config["RootUrl"], static))
 	// template init

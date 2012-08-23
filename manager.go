@@ -52,28 +52,15 @@ func newArticleMgr(db dbSync, poolSize int) *manager {
 	return ret
 }
 
-func (this *manager) atomGetArticle(id aid) *Article {
-	ret, ok := this.articles[id]
-	if !ok {
-		return nil
+func (this *manager) getArticleList() []*Article {
+	ret := make([]*Article, 0)
+	for _, p := range this.articles {
+		ret = append(ret, p)
 	}
 	return ret
 }
 
-func (this *manager) atomSetArticle(p *Article) {
-	id := p.Id
-	this.articles[id] = p
-}
-
-func (this *manager) atomGetComment(id cid) *Comment {
-	ret, ok := this.comments[id]
-	if !ok {
-		return nil
-	}
-	return ret
-}
-
-func (this *manager) atomGetCommentList(id aid) []*Comment {
+func (this *manager) getCommentList(id aid) []*Comment {
 	ret, ok := this.commentLists[id]
 	if !ok {
 		return nil
@@ -81,17 +68,30 @@ func (this *manager) atomGetCommentList(id aid) []*Comment {
 	return ret
 }
 
-func (this *manager) atomAppendComment(p *Comment) { // FIXME probably not safe
-	id := p.Father
-	this.commentLists[id] = append(this.commentLists[id], p)
-}
-
-func (this *manager) atomGetAllArticles() []*Article {
-	ret := make([]*Article, 0)
-	for _, p := range this.articles {
-		ret = append(ret, p)
+func (this *manager) getArticle(id aid) *Article {
+	ret, ok := this.articles[id]
+	if !ok {
+		return nil
 	}
 	return ret
+}
+
+func (this *manager) setArticle(p *Article) {
+	id := p.Id
+	this.articles[id] = p
+}
+
+func (this *manager) getComment(id cid) *Comment {
+	ret, ok := this.comments[id]
+	if !ok {
+		return nil
+	}
+	return ret
+}
+
+func (this *manager) appendComment(p *Comment) { // FIXME probably not safe
+	id := p.Father
+	this.commentLists[id] = append(this.commentLists[id], p)
 }
 
 func (this *manager) allocArticleId() aid {
