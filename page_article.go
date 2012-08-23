@@ -120,11 +120,15 @@ L:
 				ret += html.EscapeString(token.String())
 			}
 		case html.EndTagToken:
-			if token.DataAtom == stack[len(stack)-1] {
-				stack = stack[0 : len(stack)-1]
-				ret += token.String()
-			} else {
+			var top int = len(stack) - 1
+			for top >= 0 && stack[top] != token.DataAtom {
+				top--
+			}
+			if top == -1 {
 				ret += html.EscapeString(token.String())
+			} else {
+				stack = stack[0:top]
+				ret += token.String()
 			}
 		case html.TextToken:
 			ret += html.EscapeString(token.String())

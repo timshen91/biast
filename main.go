@@ -91,15 +91,11 @@ func init() {
 	if config["RootUrl"][len(config["RootUrl"])-1] != '/' {
 		config["RootUrl"] += "/"
 	}
-	config["TemplatePath"] = config["DocumentPath"] + "template/"
-	config["CssPath"] = config["DocumentPath"] + "css/"
-	config["CssUrl"] = config["RootUrl"] + "css/"
-	config["ImagePath"] = config["DocumentPath"] + "image/"
-	config["ImageUrl"] = config["RootUrl"] + "image/"
-	http.Handle(config["CssUrl"], http.StripPrefix(config["CssUrl"], http.FileServer(http.Dir(config["CssPath"]))))
-	http.Handle(config["ImageUrl"], http.StripPrefix(config["ImageUrl"], http.FileServer(http.Dir(config["ImagePath"]))))
+	static := http.FileServer(http.Dir(config["DocumentPath"] + "static/"))
+	http.Handle(config["RootUrl"]+"css/", http.StripPrefix(config["RootUrl"], static))
+	http.Handle(config["RootUrl"]+"image/", http.StripPrefix(config["RootUrl"], static))
 	// template init
-	tmpl = template.Must(template.ParseGlob(config["TemplatePath"] + "*.html"))
+	tmpl = template.Must(template.ParseGlob(config["DocumentPath"] + "template/" + "*.html"))
 	// article manager and db init
 	initDb()
 	artMgr = newArticleMgr(db, runtime.NumCPU())
