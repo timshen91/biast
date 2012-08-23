@@ -12,6 +12,6 @@ It's just a practice for our web application experience.
 
 ## dependency
 
-* Redis
+* [Redis](http://redis.io)
 
 	Yes we do use a database, because we don't think file system is a good choice for data persistence and update. and Redis is fast and simple.

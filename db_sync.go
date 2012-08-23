@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/nokivan/redisgo"
 	"strconv"
@@ -15,13 +14,14 @@ const (
 	queueSize                = 16
 )
 
-type whoHasId interface {
+type savable interface {
 	getId() uint32
+	encode() ([]byte, error)
 }
 
 type dbSync interface {
 	getStrList(prefixType) [][]byte
-	sync(prefixType, whoHasId)
+	sync(prefixType, savable)
 }
 
 type redisSync struct {
@@ -31,7 +31,7 @@ type redisSync struct {
 
 type syncReq struct {
 	prefix prefixType
-	data   whoHasId
+	data   savable
 }
 
 func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
@@ -53,7 +53,7 @@ func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
 	go func() {
 		for {
 			req := <-ret.queue
-			bts, err := json.Marshal(req.data)
+			bts, err := req.data.encode()
 			if err != nil {
 				logger.Println("redisSync:", err.Error())
 				continue
@@ -84,7 +84,7 @@ func (this *redisSync) getStrList(prefix prefixType) [][]byte {
 	return ret
 }
 
-func (this *redisSync) sync(prefix prefixType, data whoHasId) {
+func (this *redisSync) sync(prefix prefixType, data savable) {
 	this.queue <- &syncReq{prefix, data}
 }
 

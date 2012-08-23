@@ -3,29 +3,44 @@ package main
 import (
 	"bytes"
 	"net/http"
+	"time"
 )
 
 var indexCache *bytes.Buffer
+var feedCache *bytes.Buffer
 
-func updateIndex() {
+func updateIndexAndFeed() {
 	// TODO pager
 	indexList := artMgr.atomGetAllArticles()
 	qsortForArticleList(indexList, 0, len(indexList)-1)
-	newCache := &bytes.Buffer{}
-	tmpl.ExecuteTemplate(newCache, "index", map[string]interface{}{
-		"config":   config,
-		"articles": indexList,
+	// index
+	newIndexCache := &bytes.Buffer{}
+	tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
+		"config":    config,
+		"articles":  indexList,
+		"lastBuild": time.Now().String(),
 	})
-	indexCache = newCache
+	indexCache = newIndexCache
+	newFeedCache := &bytes.Buffer{}
+	tmpl.ExecuteTemplate(newFeedCache, "feed", map[string]interface{}{
+		"config":    config,
+		"articles":  indexList,
+		"lastBuild": time.Now().String(),
+	})
+	feedCache = newFeedCache
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(indexCache.Bytes())
 }
 
+func feedHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write(feedCache.Bytes())
+}
+
 func init() {
 	http.HandleFunc(config["RootUrl"], indexHandler)
-	updateIndex()
+	http.HandleFunc(config["RootUrl"]+"feed", feedHandler)
 }
 
 func qsortForArticleList(a []*Article, l, r int) {

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -19,9 +21,8 @@ type Article struct {
 	Email      string
 	RemoteAddr string // I'm evil
 	Date       time.Time
-
-	Title   string
-	Content string // RAW html
+	Title      string
+	Content    string // RAW html
 }
 
 type Comment struct {
@@ -30,7 +31,6 @@ type Comment struct {
 	Email      string
 	RemoteAddr string // I'm evil
 	Date       time.Time
-
 	Father     aid
 	Content    string // plain text
 	ReplyNotif bool
@@ -40,8 +40,20 @@ func (this *Article) getId() uint32 {
 	return uint32(this.Id)
 }
 
+func (this *Article) encode() ([]byte, error) {
+	return json.Marshal(this)
+}
+
 func (this *Comment) getId() uint32 {
 	return uint32(this.Id)
+}
+
+func (this *Comment) encode() ([]byte, error) {
+	return json.Marshal(this)
+}
+
+func decode(data []byte, v interface{}) error {
+	return json.Unmarshal(data, &v)
 }
 
 var config = map[string]string{}
@@ -51,6 +63,7 @@ var artMgr *manager
 var db dbSync
 
 func main() {
+	updateIndexAndFeed()
 	logger.Println("Server start")
 	go func() {
 		ch := make(chan os.Signal)
@@ -69,8 +82,15 @@ func main() {
 }
 
 func init() {
+	flag.Parse()
+	if len(flag.Args()) < 1 {
+		println(`usage:
+biast /path/to/config/file`)
+		os.Exit(1)
+	}
 	// config init
-	buff, err := ioutil.ReadFile("/etc/biast.conf")
+	config["Description"] = ""
+	buff, err := ioutil.ReadFile(flag.Arg(0))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -82,8 +102,11 @@ func init() {
 			config[strings.TrimSpace(line[:pos])] = strings.TrimSpace(line[pos+1:])
 		}
 	}
-	if !checkKeyExist(config, "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminUrl", "DbAddr", "DbPass", "DbId") {
+	if !checkKeyExist(config, "Domain", "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminUrl", "DbAddr", "DbPass", "DbId") {
 		panic("config file read failed")
+	}
+	if config["Domain"][len(config["Domain"])-1] == '/' {
+		config["Domain"] = config["Domain"][:len(config["Domain"])-1]
 	}
 	if config["DocumentPath"][len(config["DocumentPath"])-1] != '/' {
 		config["DocumentPath"] += "/"
@@ -95,7 +118,7 @@ func init() {
 	http.Handle(config["RootUrl"]+"css/", http.StripPrefix(config["RootUrl"], static))
 	http.Handle(config["RootUrl"]+"image/", http.StripPrefix(config["RootUrl"], static))
 	// template init
-	tmpl = template.Must(template.ParseGlob(config["DocumentPath"] + "template/" + "*.html"))
+	tmpl = template.Must(template.ParseGlob(config["DocumentPath"] + "template/" + "*"))
 	// article manager and db init
 	initDb()
 	artMgr = newArticleMgr(db, runtime.NumCPU())

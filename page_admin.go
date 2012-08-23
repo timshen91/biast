@@ -20,7 +20,7 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 		// EventStart: newArticle
 		artMgr.atomSetArticle(article)
 		db.sync(articlePrefix, article)
-		go updateIndex()
+		go updateIndexAndFeed()
 		// EventEnd: newArticle
 	}
 	tmpl.ExecuteTemplate(w, "new", map[string]interface{}{

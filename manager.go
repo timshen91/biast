@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"sync/atomic"
 )
 
@@ -26,7 +25,10 @@ func newArticleMgr(db dbSync, poolSize int) *manager {
 	}
 	for _, bts := range db.getStrList(articlePrefix) {
 		var p *Article
-		json.Unmarshal(bts, &p)
+		if err := decode(bts, &p); err != nil {
+			logger.Println("manager:", err.Error())
+			continue
+		}
 		ret.articles[p.Id] = p
 		if ret.articleHead < p.Id {
 			ret.articleHead = p.Id
@@ -34,7 +36,10 @@ func newArticleMgr(db dbSync, poolSize int) *manager {
 	}
 	for _, bts := range db.getStrList(commentPrefix) {
 		var p *Comment
-		json.Unmarshal(bts, &p)
+		if err := decode(bts, &p); err != nil {
+			logger.Println("manager:", err.Error())
+			continue
+		}
 		ret.comments[p.Id] = p
 		ret.commentLists[p.Father] = append(ret.commentLists[p.Father], p)
 		if ret.commentHead < p.Id {
