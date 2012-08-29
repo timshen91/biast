@@ -82,6 +82,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 		Id:         artMgr.allocCommentId(),
 		Author:     html.EscapeString(r.Form.Get("author")),
 		Email:      html.EscapeString(r.Form.Get("email")),
+		Website:    genWebsite(r.Form.Get("website")),
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
 		Content:    content,
@@ -142,4 +143,11 @@ L:
 		return "", err
 	}
 	return ret, nil
+}
+
+func genWebsite(url string) string {
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		return "http://" + url
+	}
+	return url
 }

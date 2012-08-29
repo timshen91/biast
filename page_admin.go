@@ -42,6 +42,7 @@ func genArticle(r *http.Request) (*Article, error) {
 		Id:         artMgr.allocArticleId(),
 		Author:     html.EscapeString(r.Form.Get("author")),
 		Email:      html.EscapeString(r.Form.Get("email")),
+		Website:    genWebsite(r.Form.Get("website")),
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
 		Title:      html.EscapeString(r.Form.Get("title")),

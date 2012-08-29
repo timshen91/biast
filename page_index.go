@@ -52,7 +52,7 @@ func qsortForArticleList(a []*Article, l, r int) {
 	a[i], a[j] = a[j], a[i]
 	j = l
 	for i = l + 1; i <= r; i++ {
-		if a[i].Id < a[l].Id {
+		if a[i].Id > a[l].Id {
 			j++
 			a[j], a[i] = a[i], a[j]
 		}

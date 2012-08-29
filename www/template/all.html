@@ -27,13 +27,22 @@
 </html>
 {{end}}
 
+{{define "_meta"}}
+{{if .Website}}
+<a href="{{.Website}}">{{.Author}}</a>
+{{else}}
+{{.Author}}
+{{end}}
+@ {{.Date.String}}
+{{end}}
+
 {{define "_article"}}
 <div class="article">
 	<div class="title">
 		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
 	</div>
 	<div class="article_meta">
-		{{.Author}} @ {{.Date.String}}
+	{{template "_meta" .}}
 	</div>
 	<hr/>
 	{{.Content}}
@@ -45,11 +54,13 @@
 <h2>Comments</h2>
 <hr/>
 {{range .}}
-	<div class="comment">
+<div class="comment" id="comment-{{.Id}}">
 		<div class="comment_meta">
-			{{.Author}} @ {{.Date}}
+		{{template "_meta" .}}
 		</div>
-		{{.Content}}
+		<div class="comment_content">
+			{{.Content}}
+		</div>
 	</div>
 	<hr/>
 {{end}}
@@ -63,10 +74,13 @@
 <form class="post_form" method="post">
 	<legend>Post a comment</legend>
 	<p>
-		<label for="author"><input name="author"/>Name</label>
+		<label><input name="author"/>Name</label>
 	</p>
 	<p>
-		<label for="email"><input name="email"/>Email</label>
+		<label><input name="email"/>Email(won't be published)</label>
+	</p>
+	<p>
+		<label><input name="website"/>Website(optional)</label>
 	</p>
 	<p>
 		<textarea rows="10" name="content"></textarea>
@@ -95,13 +109,16 @@
 <form class="post_form" method="post">
 	<legend>Post an article</legend>
 	<p>
-		<label for="title"><input name="title" value="{{.form.Title}}">Title</label>
+		<label><input name="title" value="{{.form.Title}}">Title</label>
 	</p>
 	<p>
-		<label for="author"><input name="author" value="{{.form.Author}}">Author</label>
+		<label><input name="author" value="{{.form.Author}}">Name</label>
 	</p>
 	<p>
-		<label for="email"><input name="email" value="{{.form.Email}}">Email</label>
+		<label><input name="email" value="{{.form.Email}}"/>Email(won't be published)</label>
+	</p>
+	<p>
+		<label><input name="website" value="{{.form.Website}}"/>Website(optional)</label>
 	</p>
 	<p>
 		<label for="text">Content (plain html)</label>

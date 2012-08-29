@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"syscall"
 	"text/template"
 	"time"
 )
@@ -21,6 +22,7 @@ type Article struct {
 	Email      string
 	RemoteAddr string // I'm evil
 	Date       time.Time
+	Website    string
 	Title      string
 	Content    string // RAW html
 }
@@ -31,6 +33,7 @@ type Comment struct {
 	Email      string
 	RemoteAddr string // I'm evil
 	Date       time.Time
+	Website    string
 	Father     aid
 	Content    string // plain text
 	ReplyNotif bool
@@ -70,9 +73,7 @@ func main() {
 		signal.Notify(ch)
 		for {
 			switch sig := <-ch; sig {
-			case os.Interrupt:
-				fallthrough
-			case os.Kill:
+			case os.Interrupt, os.Kill, syscall.SIGTERM: // FIXME: this may not be portable
 				logger.Println("Server halt")
 				os.Exit(0)
 			}
@@ -84,8 +85,7 @@ func main() {
 func init() {
 	flag.Parse()
 	if len(flag.Args()) < 1 {
-		println(`usage:
-biast /path/to/config/file`)
+		println(`usage: biast /path/to/config/file`)
 		os.Exit(1)
 	}
 	// config init
@@ -103,7 +103,7 @@ biast /path/to/config/file`)
 		}
 	}
 	if !checkKeyExist(config, "Domain", "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminUrl", "DbAddr", "DbPass", "DbId") {
-		panic("config file read failed")
+		panic("required config not exist")
 	}
 	if config["Domain"][len(config["Domain"])-1] == '/' {
 		config["Domain"] = config["Domain"][:len(config["Domain"])-1]
@@ -135,25 +135,15 @@ biast /path/to/config/file`)
 	}
 }
 
-func checkKeyExist(m interface{}, args ...string) bool {
-	value := reflect.ValueOf(m)
-	if value.Kind() != reflect.Map {
+func checkKeyExist(m interface{}, args ...interface{}) bool {
+	v := reflect.ValueOf(m)
+	if v.Kind() != reflect.Map || !v.IsValid() {
 		return false
 	}
-	tests := make(map[string]struct{})
-	for _, s := range args {
-		tests[s] = struct{}{}
-	}
-	keys := value.MapKeys()
-	var count int
-	for i := range keys {
-		_, ok := tests[keys[i].String()]
-		if ok {
-			count++
+	for _, p := range args {
+		if !v.MapIndex(reflect.ValueOf(p)).IsValid() {
+			return false
 		}
 	}
-	if count == len(args) {
-		return true
-	}
-	return false
+	return true
 }

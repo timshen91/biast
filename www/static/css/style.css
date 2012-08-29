@@ -17,11 +17,17 @@
 }
 
 .article_meta {
+	color: #999999;
 	text-align: right;
 }
 
 .comment_meta {
+	color: #999999;
 	text-align: left;
+}
+
+.comment_content {
+	text-align: right;
 }
 
 .post_form {
