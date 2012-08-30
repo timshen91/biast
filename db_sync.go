@@ -9,8 +9,8 @@ import (
 type prefixType string
 
 const (
-	articlePrefix prefixType = "article"
-	commentPrefix            = "comment"
+	articlePrefix prefixType = "a:"
+	commentPrefix            = "c:"
 	queueSize                = 16
 )
 

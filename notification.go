@@ -10,10 +10,17 @@ import (
 )
 
 func newCommentNotify(comm *Comment) {
+	// notify the article author
+	if father := artMgr.getArticle(comm.Father); father.QuoteNotif {
+		send(father.Email, "Your article has been commented", fmt.Sprintf(
+			`Dear %s, your comment on %s has been commented by %s:
+	<blockquote>%s</blockquote>
+	Click <a href="%s">here</a> for details
+	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id)))
+	}
+	// notify the commenter
 	for _, id := range parseRef(comm.Content) {
-		println("!")
 		if p := artMgr.getComment(id); p != nil && p.QuoteNotif {
-			println("!!")
 			if comm.Father == p.Father {
 				send(p.Email, "Your comment has been quoted", fmt.Sprintf(
 					`Dear %s, your comment on %s has been quoted by %s:
