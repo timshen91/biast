@@ -25,6 +25,7 @@ type Article struct {
 	Website    string
 	Title      string
 	Content    string // RAW html
+	QuoteNotif bool
 }
 
 type Comment struct {

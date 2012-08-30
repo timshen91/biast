@@ -47,6 +47,7 @@ func genArticle(r *http.Request) (*Article, error) {
 		Date:       time.Now(),
 		Title:      html.EscapeString(r.Form.Get("title")),
 		Content:    r.Form.Get("content"),
+		QuoteNotif: r.Form.Get("notify") == "on",
 	}, nil
 }
 
