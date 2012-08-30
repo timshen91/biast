@@ -24,12 +24,14 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 			// EventEnd: newArticle
 		}
 	}
-	tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
+	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
 		"form":     article,
 		"header":   "new",
-	})
+	}); err != nil {
+		logger.Println("new:", err.Error())
+	}
 }
 
 func genArticle(r *http.Request) (*Article, error) {

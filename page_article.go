@@ -39,7 +39,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	p := artMgr.getArticle(id)
 	if p == nil {
-		logger.Println("404 for an nonexist id")
+		logger.Println(r.RemoteAddr + "404")
 		http.NotFound(w, r)
 		return
 	}
@@ -58,13 +58,15 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 			// EventEnd: newComment
 		}
 	}
-	tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
+	if err := tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
 		"config":   config,
 		"article":  p,
 		"comments": artMgr.getCommentList(p.Id),
 		"feedback": feedback,
 		"header":   p.Title,
-	})
+	}); err != nil {
+		logger.Println(r.RemoteAddr + err.Error())
+	}
 }
 
 func genComment(r *http.Request, fid aid) (*Comment, error) {

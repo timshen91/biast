@@ -15,18 +15,22 @@ func updateIndexAndFeed() {
 	qsortForArticleList(indexList, 0, len(indexList)-1)
 	// index
 	newIndexCache := &bytes.Buffer{}
-	tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
+	if err := tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
 		"config":   config,
 		"articles": indexList,
 		"header":   config["ServerName"],
-	})
+	}); err != nil {
+		logger.Println("index cache:", err.Error())
+	}
 	indexCache = newIndexCache
 	newFeedCache := &bytes.Buffer{}
-	tmpl.ExecuteTemplate(newFeedCache, "feed", map[string]interface{}{
+	if err := tmpl.ExecuteTemplate(newFeedCache, "feed", map[string]interface{}{
 		"config":    config,
 		"articles":  indexList,
 		"lastBuild": time.Now().String(),
-	})
+	}); err != nil {
+		logger.Println("feed cache:", err.Error())
+	}
 	feedCache = newFeedCache
 }
 
