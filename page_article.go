@@ -148,7 +148,7 @@ L:
 }
 
 func genWebsite(url string) string {
-	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+	if url != "" && !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
 		return "http://" + url
 	}
 	return url

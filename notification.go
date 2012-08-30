@@ -49,7 +49,7 @@ func init() {
 
 func send(to, subject, msg string) {
 	logger.Println("notification:", "SendMail:", msg, "for", to)
-	if err := smtp.SendMail(config["SMTPAddr"], mailAuth, config["ServerName"]+"@"+config["Domain"], []string{to}, []byte("To: "+to+"\nSubject: "+subject+"\nContent-Type: text/html; charset=\"UTF-8\"\n"+msg)); err != nil {
+	if err := smtp.SendMail(config["SMTPAddr"], mailAuth, "admin@"+config["Domain"], []string{to}, []byte("To: "+to+"\nSubject: "+subject+"\nContent-Type: text/html; charset=\"UTF-8\"\n"+msg)); err != nil {
 		logger.Println("SendMail:", err.Error())
 	}
 }
