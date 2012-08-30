@@ -80,7 +80,9 @@ func main() {
 			}
 		}
 	}()
-	http.ListenAndServe(config["ServerAddr"], nil)
+	if err := http.ListenAndServe(config["ServerAddr"], nil); err != nil {
+		logger.Println("Server cannot start")
+	}
 }
 
 func init() {

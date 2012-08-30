@@ -70,7 +70,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func genComment(r *http.Request, fid aid) (*Comment, error) {
-	if !checkKeyExist(r.Form, "author", "email", "content", "notify") {
+	if !checkKeyExist(r.Form, "author", "email", "content") {
 		return nil, errors.New("required field not found")
 	}
 	if len(r.Form.Get("author")) == 0 || len(r.Form.Get("email")) == 0 {

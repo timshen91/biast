@@ -26,6 +26,10 @@
 	text-align: left;
 }
 
+.comment_meta.quote {
+	text-align: right;
+}
+
 .comment_content {
 }
 

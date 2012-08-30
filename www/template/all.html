@@ -22,6 +22,7 @@
 
 {{define "_footer"}}
 		</div>
+		<script src="{{.RootUrl}}js/biast.js"></script>
 		<script src="{{.RootUrl}}js/bootstrap.min.js"></script>
 	</body>
 </html>
@@ -57,9 +58,10 @@
 <div class="comment" id="comment-{{.Id}}">
 		<div class="comment_meta">
 		{{template "_meta" .}}
+		<button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn" style="float:right">Quote</button>
 		</div>
-		<div class="comment_content">
-			{{.Content}}
+		<div id="comment_content-{{.Id}}" class="comment_content">
+		{{.Content}}
 		</div>
 	</div>
 	<hr/>
@@ -71,7 +73,7 @@
 {{template "_article" .article}}
 {{template "_comment" .comments}}
 <span style="color:red">{{.feedback}}</span>
-<form class="post_form" method="post">
+<form class="post_form" id="comment_form" method="post">
 	<legend>Post a comment</legend>
 	<p>
 		<label><input name="author"/>Name</label>
@@ -125,7 +127,7 @@
 		<textarea rows="10" name="content">{{.form.Content}}</textarea>
 	</p>
 	<p>
-		<button type="submit" class="btn btn-primary" onclick="document.forms[0].target = '';" name="post">Submit</button>
+		<button type="submit" class="btn btn-primary" name="post">Submit</button>
 		<label class="checkbox inline" for="notify">
 			<input type="checkbox" name="notify" checked="checked">Send Email Notification when commented
 		</label>
