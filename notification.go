@@ -12,11 +12,11 @@ import (
 func newCommentNotify(comm *Comment) {
 	for _, id := range parseRef(comm.Content) {
 		println("!")
-		if p := artMgr.getComment(id); p != nil && p.ReplyNotif {
+		if p := artMgr.getComment(id); p != nil && p.QuoteNotif {
 			println("!!")
 			if comm.Father == p.Father {
-				send(p.Email, "Your comment has been replied", fmt.Sprintf(
-					`Dear %s, your comment on %s has been replied by %s:
+				send(p.Email, "Your comment has been quoted", fmt.Sprintf(
+					`Dear %s, your comment on %s has been quoted by %s:
 <blockquote>%s</blockquote>
 Click <a href="%s">here</a> for details
 `, p.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(p.Father)+"#comment-"+fmt.Sprint(comm.Id)))

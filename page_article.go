@@ -87,7 +87,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 		Date:       time.Now(),
 		Content:    content,
 		Father:     fid,
-		ReplyNotif: r.Form.Get("notify") == "on",
+		QuoteNotif: r.Form.Get("notify") == "on",
 	}, nil
 }
 

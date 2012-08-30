@@ -36,7 +36,7 @@ type Comment struct {
 	Website    string
 	Father     aid
 	Content    string // plain text
-	ReplyNotif bool
+	QuoteNotif bool
 }
 
 func (this *Article) getId() uint32 {

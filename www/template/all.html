@@ -88,7 +88,7 @@
 	<p>
 		<button type="submit" class="btn btn-primary" name="post">Send</button>
 		<label class="checkbox inline" for="notify">
-			<input type="checkbox" name="notify" checked="checked">Send Email Notification when replied
+			<input type="checkbox" name="notify" checked="checked">Send Email Notification when quoted
 		</label>
 	</p>
 </form>
@@ -126,6 +126,9 @@
 	</p>
 	<p>
 		<button type="submit" class="btn btn-primary" onclick="document.forms[0].target = '';" name="post">Submit</button>
+		<label class="checkbox inline" for="notify">
+			<input type="checkbox" name="notify" checked="checked">Send Email Notification when commented
+		</label>
 	</p>
 </form>
 {{template "_footer" .config}}
