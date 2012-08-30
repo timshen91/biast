@@ -45,7 +45,6 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var feedback string
 	if r.Method == "POST" {
-		r.ParseForm()
 		comm, err := genComment(r, id)
 		if err != nil {
 			logger.Println(r.RemoteAddr+":", err.Error())
@@ -70,6 +69,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func genComment(r *http.Request, fid aid) (*Comment, error) {
+	r.ParseForm()
 	if !checkKeyExist(r.Form, "author", "email", "content") {
 		return nil, errors.New("required field not found")
 	}
@@ -79,6 +79,9 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 	content, err := tagFilter(r.Form.Get("content"))
 	if err != nil {
 		return nil, err
+	}
+	if len(r.Form.Get("content")) == 0 {
+		return nil, errors.New("name, email and content can't be blank")
 	}
 	return &Comment{
 		Id:         artMgr.allocCommentId(),

@@ -23,9 +23,9 @@ type Article struct {
 	RemoteAddr string // I'm evil
 	Date       time.Time
 	Website    string
-	Title      string
 	Content    string // RAW html
 	QuoteNotif bool
+	Title      string
 }
 
 type Comment struct {
@@ -35,9 +35,9 @@ type Comment struct {
 	RemoteAddr string // I'm evil
 	Date       time.Time
 	Website    string
-	Father     aid
-	Content    string // plain text
+	Content    string // tags limited
 	QuoteNotif bool
+	Father     aid
 }
 
 func (this *Article) getId() uint32 {
