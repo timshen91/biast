@@ -24,6 +24,7 @@ var validAtom = map[atom.Atom]map[string]struct{}{
 	atom.Em:         map[string]struct{}{},
 	atom.I:          map[string]struct{}{},
 	atom.P:          map[string]struct{}{},
+	atom.Pre:        map[string]struct{}{},
 	atom.Q:          map[string]struct{}{"cite": struct{}{}},
 	atom.Strike:     map[string]struct{}{},
 	atom.Strong:     map[string]struct{}{},
@@ -86,8 +87,8 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 	}
 	return &Comment{
 		Id:         allocCommentId(),
-		Author:     escapeString(r.Form.Get("author")),
-		Email:      escapeString(r.Form.Get("email")),
+		Author:     html.EscapeString(r.Form.Get("author")),
+		Email:      html.EscapeString(r.Form.Get("email")),
 		Website:    genWebsite(r.Form.Get("website")),
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
@@ -110,6 +111,7 @@ L:
 	for {
 		t.Next()
 		token := t.Token()
+		str := html.UnescapeString(token.String())
 		switch token.Type {
 		case html.StartTagToken, html.SelfClosingTagToken:
 			ans := false
@@ -124,9 +126,9 @@ L:
 			}
 			if ans {
 				stack = append(stack, token.DataAtom)
-				ret += token.String()
+				ret += str
 			} else {
-				ret += escapeString(token.String())
+				ret += html.EscapeString(str)
 			}
 		case html.EndTagToken:
 			var top int = len(stack) - 1
@@ -134,13 +136,13 @@ L:
 				top--
 			}
 			if top == -1 {
-				ret += escapeString(token.String())
+				ret += html.EscapeString(str)
 			} else {
 				stack = stack[0:top]
-				ret += token.String()
+				ret += str
 			}
 		case html.TextToken:
-			ret += escapeString(token.String())
+			ret += html.EscapeString(str)
 		case html.ErrorToken:
 			break L
 		}

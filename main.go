@@ -146,7 +146,3 @@ func checkKeyExist(m interface{}, args ...interface{}) bool {
 	}
 	return true
 }
-
-func escapeString(html string) string {
-	return strings.Replace(strings.Replace(html, "<", "&lt;", -1), "<", "&gt;", -1)
-}
