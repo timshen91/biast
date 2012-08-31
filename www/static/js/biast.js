@@ -3,10 +3,14 @@ function trim(str) {
 }
 
 function quote(id, author) {
+	var str = window.getSelection().toString();
+	if (str.length == 0) {
+		str = trim(document.getElementById("comment_content-" + id).innerHTML);
+	}
 	document.getElementById("comment_form").content.value += '<blockquote cite="#comment-' + id + '">'
 		+ '<a href="' + document.getElementById("comment-" + id).baseURI + '#comment-' + id + '">'
 		+ author + '</a>: '
-		+ trim(document.getElementById("comment_content-" + id).innerHTML) + '</blockquote>\n';
+		+ str + '</blockquote>\n';
 }
 
 function addTag(tag) {
