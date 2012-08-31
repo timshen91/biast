@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html"
 	"net/http"
 	"sort"
 	"strconv"
@@ -103,12 +102,12 @@ func genArticle(r *http.Request) (*Article, error) {
 	}
 	// may we need a filter?
 	return &Article{
-		Author:     html.EscapeString(r.Form.Get("author")),
-		Email:      html.EscapeString(r.Form.Get("email")),
+		Author:     escapeString(r.Form.Get("author")),
+		Email:      escapeString(r.Form.Get("email")),
 		Website:    genWebsite(r.Form.Get("website")),
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
-		Title:      html.EscapeString(r.Form.Get("title")),
+		Title:      escapeString(r.Form.Get("title")),
 		Content:    r.Form.Get("content"),
 		QuoteNotif: r.Form.Get("notify") == "on",
 		Tags:       tagList,

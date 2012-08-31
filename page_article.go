@@ -86,8 +86,8 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 	}
 	return &Comment{
 		Id:         allocCommentId(),
-		Author:     html.EscapeString(r.Form.Get("author")),
-		Email:      html.EscapeString(r.Form.Get("email")),
+		Author:     escapeString(r.Form.Get("author")),
+		Email:      escapeString(r.Form.Get("email")),
 		Website:    genWebsite(r.Form.Get("website")),
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
@@ -126,7 +126,7 @@ L:
 				stack = append(stack, token.DataAtom)
 				ret += token.String()
 			} else {
-				ret += html.EscapeString(token.String())
+				ret += escapeString(token.String())
 			}
 		case html.EndTagToken:
 			var top int = len(stack) - 1
@@ -134,13 +134,13 @@ L:
 				top--
 			}
 			if top == -1 {
-				ret += html.EscapeString(token.String())
+				ret += escapeString(token.String())
 			} else {
 				stack = stack[0:top]
 				ret += token.String()
 			}
 		case html.TextToken:
-			ret += html.EscapeString(token.String())
+			ret += escapeString(token.String())
 		case html.ErrorToken:
 			break L
 		}
