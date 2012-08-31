@@ -139,6 +139,7 @@ Tags:
 	<label><input name="tags" id="tag_input" value="{{.tagsNow}}">Tags</label>
 	</p>
 	<p>
+	All exist tags: 
 	{{range .allTags}}
 		<a href="javascript:void(0)" onclick="addTag('{{.}}')">{{.}}</a>
 	{{end}}

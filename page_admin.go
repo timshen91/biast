@@ -25,10 +25,16 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 				article.Id = idRequest
 			} else {
 				article.Id = allocArticleId()
+				article.Date = time.Now()
 			}
-			fmt.Println(article, article.Tags)
+			old := getArticle(article.Id)
+			if old != nil {
+				article.Date = old.Date
+			} else {
+				article.Date = time.Now()
+			}
 			// EventStart: newArticle
-			if old := getArticle(article.Id); old != nil {
+			if old != nil {
 				go updateTags(article.Id, old.Tags, article.Tags)
 			} else {
 				go updateTags(article.Id, nil, article.Tags)
