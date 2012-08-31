@@ -55,7 +55,7 @@ func send(to, subject, msg string) {
 }
 
 func parseRef(data string) []cid {
-	var ret []cid
+	var m = map[cid]struct{}{}
 	t := html.NewTokenizer(strings.NewReader(data))
 	for {
 		t.Next()
@@ -73,12 +73,16 @@ func parseRef(data string) []cid {
 							logger.Println("notification:", err.Error())
 							continue
 						}
-						ret = append(ret, cid(id))
+						m[cid(id)] = struct{}{}
 					}
 					break
 				}
 			}
 		}
+	}
+	var ret []cid
+	for k, _ := range m {
+		ret = append(ret, k)
 	}
 	return ret
 }
