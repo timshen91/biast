@@ -11,7 +11,7 @@ import (
 
 func newCommentNotify(comm *Comment) {
 	// notify the article author
-	if father := artMgr.getArticle(comm.Father); father.QuoteNotif {
+	if father := getArticle(comm.Father); father.QuoteNotif {
 		send(father.Email, "Your article has been commented", fmt.Sprintf(
 			`Dear %s, your comment on %s has been commented by %s:
 	<blockquote>%s</blockquote>
@@ -20,7 +20,7 @@ func newCommentNotify(comm *Comment) {
 	}
 	// notify the commenter
 	for _, id := range parseRef(comm.Content) {
-		if p := artMgr.getComment(id); p != nil && p.QuoteNotif {
+		if p := getComment(id); p != nil && p.QuoteNotif {
 			if comm.Father == p.Father {
 				send(p.Email, "Your comment has been quoted", fmt.Sprintf(
 					`Dear %s, your comment on %s has been quoted by %s:

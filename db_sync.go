@@ -14,14 +14,9 @@ const (
 	queueSize                = 16
 )
 
-type savable interface {
-	getId() uint32
-	encode() ([]byte, error)
-}
-
 type dbSync interface {
-	getStrList(prefixType) [][]byte
-	sync(prefixType, savable)
+	getStrList(prefixType) ([]string, [][]byte)
+	sync(prefixType, string, interface{})
 }
 
 type redisSync struct {
@@ -31,7 +26,8 @@ type redisSync struct {
 
 type syncReq struct {
 	prefix prefixType
-	data   savable
+	id     string
+	data   interface{}
 }
 
 func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
@@ -53,12 +49,12 @@ func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
 	go func() {
 		for {
 			req := <-ret.queue
-			bts, err := req.data.encode()
+			bts, err := encode(req.data)
 			if err != nil {
 				logger.Println("redisSync:", err.Error())
 				continue
 			}
-			if err := ret.cli.Set([]byte(string(req.prefix)+fmt.Sprint(req.data.getId())), bts); err != nil {
+			if err := ret.cli.Set([]byte(string(req.prefix)+fmt.Sprint(req.id)), bts); err != nil {
 				logger.Println("redisSync:", err.Error())
 			}
 		}
@@ -66,11 +62,11 @@ func newRedisSync(addr, pass, dbId string) (*redisSync, error) {
 	return ret, nil
 }
 
-func (this *redisSync) getStrList(prefix prefixType) [][]byte {
+func (this *redisSync) getStrList(prefix prefixType) (idList []string, valueList [][]byte) {
 	strs, err := this.cli.Keys([]byte(prefix + "*"))
 	if err != nil {
 		logger.Println("redisSync:", err.Error())
-		return nil
+		return nil, nil
 	}
 	var ret [][]byte
 	for _, id := range strs {
@@ -79,13 +75,14 @@ func (this *redisSync) getStrList(prefix prefixType) [][]byte {
 			logger.Println("redisSync:", err.Error())
 			continue
 		}
+		idList = append(idList, string(id))
 		ret = append(ret, str)
 	}
-	return ret
+	return idList, ret
 }
 
-func (this *redisSync) sync(prefix prefixType, data savable) {
-	this.queue <- &syncReq{prefix, data}
+func (this *redisSync) sync(prefix prefixType, id string, data interface{}) {
+	this.queue <- &syncReq{prefix, id, data}
 }
 
 func initDb() {

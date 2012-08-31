@@ -2,47 +2,59 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"net/http"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 )
 
 func newArticle(w http.ResponseWriter, r *http.Request) {
 	var feedback string
-	var article *Article
+	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
 	if r.Method == "POST" {
 		feedback = "Article sent"
-		var err error
-		if article, err = genArticle(r); err != nil {
-			article = &Article{}
+		if temp, err := genArticle(r); err != nil {
 			feedback = "Oops...! " + err.Error()
 		} else {
+			article = temp
 			if ok {
 				article.Id = idRequest
 			} else {
-				article.Id = artMgr.allocArticleId()
+				article.Id = allocArticleId()
 			}
+			fmt.Println(article, article.Tags)
 			// EventStart: newArticle
-			artMgr.setArticle(article)
-			db.sync(articlePrefix, article)
+			if old := getArticle(article.Id); old != nil {
+				go updateTags(article.Id, old.Tags, article.Tags)
+			} else {
+				go updateTags(article.Id, nil, article.Tags)
+			}
+			setArticle(article)
+			db.sync(articlePrefix, fmt.Sprint(article.Id), article)
 			go updateIndexAndFeed()
 			// EventEnd: newArticle
 		}
 	} else {
-		article = &Article{}
 		if ok {
-			if temp := artMgr.getArticle(idRequest); temp != nil {
+			if temp := getArticle(idRequest); temp != nil {
 				article = temp
 			}
 		}
 	}
 
+	tagsNow := strings.Join(article.Tags, ", ")
+	allTags := getAllTags()
+	sort.Strings(allTags)
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
 		"form":     article,
+		"tagsNow":  tagsNow,
+		"allTags":  allTags,
 		"header":   "Admin Panel",
 	}); err != nil {
 		logger.Println("new:", err.Error())
@@ -60,6 +72,16 @@ func parseId(url string) (id aid, ok bool) {
 	return aid(id64), true
 }
 
+func genTags(tagList string) []string { // tags shouldn't contain quote marks
+	ret := []string{}
+	for _, s := range strings.Split(tagList, ",") {
+		strings.Replace(s, "'", "", -1)
+		strings.Replace(s, "\"", "", -1)
+		ret = append(ret, strings.TrimSpace(s))
+	}
+	return ret
+}
+
 func genArticle(r *http.Request) (*Article, error) {
 	r.ParseForm()
 	if !checkKeyExist(r.Form, "author", "email", "content", "title") {
@@ -68,6 +90,10 @@ func genArticle(r *http.Request) (*Article, error) {
 	}
 	if r.Form.Get("author") == "" || r.Form.Get("email") == "" || r.Form.Get("content") == "" || r.Form.Get("title") == "" {
 		return nil, errors.New("name, email, content and title can't be blank")
+	}
+	var tagList = []string{}
+	for _, t := range genTags(r.Form.Get("tags")) {
+		tagList = append(tagList, t)
 	}
 	// may we need a filter?
 	return &Article{
@@ -79,6 +105,7 @@ func genArticle(r *http.Request) (*Article, error) {
 		Title:      html.EscapeString(r.Form.Get("title")),
 		Content:    r.Form.Get("content"),
 		QuoteNotif: r.Form.Get("notify") == "on",
+		Tags:       tagList,
 	}, nil
 }
 

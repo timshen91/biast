@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
-	"runtime"
 	"strings"
 	"syscall"
 	"text/template"
@@ -27,6 +26,7 @@ type Article struct {
 	Content    string // RAW html
 	QuoteNotif bool
 	Title      string
+	Tags       []string
 }
 
 type Comment struct {
@@ -45,16 +45,12 @@ func (this *Article) getId() uint32 {
 	return uint32(this.Id)
 }
 
-func (this *Article) encode() ([]byte, error) {
-	return json.Marshal(this)
-}
-
 func (this *Comment) getId() uint32 {
 	return uint32(this.Id)
 }
 
-func (this *Comment) encode() ([]byte, error) {
-	return json.Marshal(this)
+func encode(v interface{}) ([]byte, error) {
+	return json.Marshal(v)
 }
 
 func decode(data []byte, v interface{}) error {
@@ -65,10 +61,8 @@ var config = map[string]string{}
 var tmpl *template.Template
 var logger *log.Logger
 var db dbSync
-var artMgr *manager
 
 func main() {
-	updateIndexAndFeed()
 	logger.Println("Server start")
 	go func() {
 		ch := make(chan os.Signal)
@@ -81,6 +75,8 @@ func main() {
 			}
 		}
 	}()
+	initManager()
+	updateIndexAndFeed()
 	if err := http.ListenAndServe(config["ServerAddr"], nil); err != nil {
 		logger.Println("Server cannot start")
 	}
@@ -124,9 +120,6 @@ func init() {
 	http.Handle(config["RootUrl"]+"image/", http.StripPrefix(config["RootUrl"], static))
 	// template init
 	tmpl = template.Must(template.ParseGlob(config["DocumentPath"] + "template/" + "*"))
-	// article manager and db init
-	initDb()
-	artMgr = newArticleMgr(db, runtime.NumCPU())
 	// logger
 	if _, ok := config["LogPath"]; ok {
 		logWriter, err := os.OpenFile(config["LogPath"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
@@ -137,6 +130,8 @@ func init() {
 	} else {
 		logger = log.New(os.Stderr, "biast: ", log.LstdFlags|log.Lshortfile)
 	}
+	// db init
+	initDb()
 }
 
 func checkKeyExist(m interface{}, args ...interface{}) bool {

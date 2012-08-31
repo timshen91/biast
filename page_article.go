@@ -4,6 +4,7 @@ import (
 	"errors"
 	"exp/html"
 	"exp/html/atom"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -37,7 +38,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := aid(id64)
-	p := artMgr.getArticle(id)
+	p := getArticle(id)
 	if p == nil {
 		logger.Println(r.RemoteAddr + "404")
 		http.NotFound(w, r)
@@ -51,8 +52,8 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 			feedback = "Oops...! " + err.Error()
 		} else {
 			// EventStart: newComment
-			artMgr.appendComment(comm)
-			db.sync(commentPrefix, comm)
+			appendComment(comm)
+			db.sync(commentPrefix, fmt.Sprint(comm.Id), comm)
 			go newCommentNotify(comm)
 			// EventEnd: newComment
 		}
@@ -60,7 +61,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
 		"config":   config,
 		"article":  p,
-		"comments": artMgr.getCommentList(p.Id),
+		"comments": getCommentList(p.Id),
 		"feedback": feedback,
 		"header":   p.Title,
 	}); err != nil {
@@ -76,7 +77,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 	if len(r.Form.Get("author")) == 0 || len(r.Form.Get("email")) == 0 {
 		return nil, errors.New("name, email and content can't be blank")
 	}
-	content, err := tagFilter(r.Form.Get("content"))
+	content, err := htmlFilter(r.Form.Get("content"))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 		return nil, errors.New("name, email and content can't be blank")
 	}
 	return &Comment{
-		Id:         artMgr.allocCommentId(),
+		Id:         allocCommentId(),
 		Author:     html.EscapeString(r.Form.Get("author")),
 		Email:      html.EscapeString(r.Form.Get("email")),
 		Website:    genWebsite(r.Form.Get("website")),
@@ -101,7 +102,7 @@ func init() {
 	http.HandleFunc(config["ArticleUrl"], articleHandler)
 }
 
-func tagFilter(content string) (string, error) {
+func htmlFilter(content string) (string, error) {
 	var ret string
 	t := html.NewTokenizer(strings.NewReader(content))
 	stack := make([]atom.Atom, 0)

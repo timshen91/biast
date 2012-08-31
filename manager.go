@@ -7,103 +7,105 @@ import (
 type aid uint32
 type cid uint32
 
-type manager struct { // assume pointer assignment is atomic
-	articles     map[aid]*Article
-	comments     map[cid]*Comment
-	commentLists map[aid][]*Comment
-	articleHead  aid
-	commentHead  cid
-}
+// assume pointer assignment is atomic
+var articles = map[aid]*Article{}
+var comments = map[cid]*Comment{}
+var commentLists = map[aid][]*Comment{}
+var articleHead aid
+var commentHead cid
 
-func newArticleMgr(db dbSync, poolSize int) *manager {
-	ret := &manager{
-		articles:     map[aid]*Article{},
-		comments:     map[cid]*Comment{},
-		commentLists: map[aid][]*Comment{},
-		articleHead:  0,
-		commentHead:  0,
-	}
-	for _, bts := range db.getStrList(articlePrefix) {
-		var p *Article
-		if err := decode(bts, &p); err != nil {
-			logger.Println("manager:", err.Error())
-			continue
-		}
-		ret.articles[p.Id] = p
-		if ret.articleHead < p.Id {
-			ret.articleHead = p.Id
-		}
-	}
-	for _, bts := range db.getStrList(commentPrefix) {
-		var p *Comment
-		if err := decode(bts, &p); err != nil {
-			logger.Println("manager:", err.Error())
-			continue
-		}
-		ret.comments[p.Id] = p
-		ret.commentLists[p.Father] = append(ret.commentLists[p.Father], p)
-		if ret.commentHead < p.Id {
-			ret.commentHead = p.Id
-		}
-	}
-	for _, p := range ret.commentLists {
-		qsortForCommentList(p, 0, len(p)-1)
-	}
-	return ret
-}
-
-func (this *manager) getArticleList() []*Article {
+func getArticleList() []*Article {
 	ret := make([]*Article, 0)
-	for _, p := range this.articles {
+	for _, p := range articles {
 		ret = append(ret, p)
 	}
 	return ret
 }
 
-func (this *manager) getCommentList(id aid) []*Comment {
-	ret, ok := this.commentLists[id]
+func getCommentList(id aid) []*Comment {
+	ret, ok := commentLists[id]
 	if !ok {
 		return nil
 	}
 	return ret
 }
 
-func (this *manager) getArticle(id aid) *Article {
-	ret, ok := this.articles[id]
+func getArticle(id aid) *Article {
+	ret, ok := articles[id]
 	if !ok {
 		return nil
 	}
 	return ret
 }
 
-func (this *manager) setArticle(p *Article) {
+func setArticle(p *Article) {
 	id := p.Id
-	this.articles[id] = p
+	articles[id] = p
 }
 
-func (this *manager) getComment(id cid) *Comment {
-	ret, ok := this.comments[id]
+func getComment(id cid) *Comment {
+	ret, ok := comments[id]
 	if !ok {
 		return nil
 	}
 	return ret
 }
 
-func (this *manager) appendComment(p *Comment) { // FIXME probably not safe
+func appendComment(p *Comment) { // FIXME probably not safe
 	id := p.Father
-	this.commentLists[id] = append(this.commentLists[id], p)
+	commentLists[id] = append(commentLists[id], p)
 }
 
-func (this *manager) allocArticleId() aid {
-	return aid(allocId((*uint32)(&(this.articleHead))))
+func allocArticleId() aid {
+	return aid(allocId((*uint32)(&(articleHead))))
 }
 
-func (this *manager) allocCommentId() cid {
-	return cid(allocId((*uint32)(&this.commentHead)))
+func allocCommentId() cid {
+	return cid(allocId((*uint32)(&commentHead)))
 }
 
 func allocId(head *uint32) uint32 {
 	return atomic.AddUint32(head, 1)
+}
+
+func initManager() {
+	initArticleList()
+	initCommentList()
+	initTags()
+}
+
+func initArticleList() {
+	_, vList := db.getStrList(articlePrefix)
+	for _, bts := range vList {
+		var p *Article
+		if err := decode(bts, &p); err != nil {
+			logger.Println("manager:", err.Error())
+			continue
+		}
+		articles[p.Id] = p
+		if articleHead < p.Id {
+			articleHead = p.Id
+		}
+	}
+}
+
+func initCommentList() {
+	_, vList := db.getStrList(commentPrefix)
+	for _, bts := range vList {
+		var p *Comment
+		if err := decode(bts, &p); err != nil {
+			logger.Println("manager:", err.Error())
+			continue
+		}
+		comments[p.Id] = p
+		commentLists[p.Father] = append(commentLists[p.Father], p)
+		if commentHead < p.Id {
+			commentHead = p.Id
+		}
+	}
+	for _, p := range commentLists {
+		qsortForCommentList(p, 0, len(p)-1)
+	}
 }
 
 func qsortForCommentList(a []*Comment, l, r int) {

@@ -11,7 +11,7 @@ var feedCache *bytes.Buffer
 
 func updateIndexAndFeed() {
 	// TODO pager
-	indexList := artMgr.getArticleList()
+	indexList := getArticleList()
 	qsortForArticleList(indexList, 0, len(indexList)-1)
 	// index
 	newIndexCache := &bytes.Buffer{}

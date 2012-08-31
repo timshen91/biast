@@ -71,6 +71,15 @@
 {{define "article"}}
 {{template "_header" .}}
 {{template "_article" .article}}
+<p>
+Tags:
+</p>
+<p>
+{{$url := .config.TagUrl}}
+{{range .article.Tags}}
+	<a href="{{$url}}{{.}}">{{.}}</a>
+{{end}}
+</p>
 {{template "_comment" .comments}}
 <span style="color:red">{{.feedback}}</span>
 <form class="post_form" id="comment_form" method="post">
@@ -123,8 +132,16 @@
 		<label><input name="website" value="{{.form.Website}}"/>Website(optional)</label>
 	</p>
 	<p>
-		<label for="text">Content (Plain HTML, please)</label>
+		<label>Content (Plain HTML, please)</label>
 		<textarea rows="10" name="content">{{.form.Content}}</textarea>
+	</p>
+	<p>
+	<label><input name="tags" id="tag_input" value="{{.tagsNow}}">Tags</label>
+	</p>
+	<p>
+	{{range .allTags}}
+		<a href="javascript:void(0)" onclick="addTag('{{.}}')">{{.}}</a>
+	{{end}}
 	</p>
 	<p>
 		<button type="submit" class="btn btn-primary" name="post">Submit</button>
@@ -133,5 +150,19 @@
 		</label>
 	</p>
 </form>
+{{template "_footer" .config}}
+{{end}}
+
+{{define "tags"}}
+{{template "_header" .}}
+<p>
+Tags:
+</p>
+<p>
+{{$url := .config.TagUrl}}
+{{range .tags}}
+	<a href="{{$url}}{{.}}">{{.}}</a>
+{{end}}
+</p>
 {{template "_footer" .config}}
 {{end}}

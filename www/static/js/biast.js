@@ -3,9 +3,15 @@ function trim(str) {
 }
 
 function quote(id, author) {
-	var quoteStr = '<blockquote cite="#comment-' + id + '">'
+	document.getElementById("comment_form").content.value += '<blockquote cite="#comment-' + id + '">'
 		+ '<a href="' + document.getElementById("comment-" + id).baseURI + '#comment-' + id + '">'
 		+ author + '</a>: '
 		+ trim(document.getElementById("comment_content-" + id).innerHTML) + '</blockquote>\n';
-	document.getElementById("comment_form").content.value += quoteStr;
+}
+
+function addTag(tag) {
+	if (document.getElementById("tag_input").value.length != 0) {
+		document.getElementById("tag_input").value += ", ";
+	}
+	document.getElementById("tag_input").value += tag;
 }
