@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -63,8 +64,8 @@ func decode(data []byte, v interface{}) error {
 var config = map[string]string{}
 var tmpl *template.Template
 var logger *log.Logger
-var artMgr *manager
 var db dbSync
+var artMgr *manager
 
 func main() {
 	updateIndexAndFeed()
@@ -88,7 +89,7 @@ func main() {
 func init() {
 	flag.Parse()
 	if len(flag.Args()) < 1 {
-		println(`usage: biast /path/to/config/file`)
+		fmt.Println(`usage: biast /path/to/config/file`)
 		os.Exit(1)
 	}
 	// config init

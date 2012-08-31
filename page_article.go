@@ -31,12 +31,12 @@ var validAtom = map[atom.Atom]map[string]struct{}{
 
 func articleHandler(w http.ResponseWriter, r *http.Request) {
 	id64, err := strconv.ParseUint(r.URL.Path[len(config["ArticleUrl"]):], 10, 32)
-	id := aid(id64)
 	if err != nil {
 		logger.Println(r.RemoteAddr + ": 404 for an invalid id")
 		http.NotFound(w, r)
 		return
 	}
+	id := aid(id64)
 	p := artMgr.getArticle(id)
 	if p == nil {
 		logger.Println(r.RemoteAddr + "404")
