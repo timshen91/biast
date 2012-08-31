@@ -24,7 +24,7 @@ type Article struct {
 	Date       time.Time
 	Website    string
 	Content    string // RAW html
-	QuoteNotif bool
+	Notif      bool
 	Title      string
 	Tags       []string
 }
@@ -37,7 +37,7 @@ type Comment struct {
 	Date       time.Time
 	Website    string
 	Content    string // tags limited
-	QuoteNotif bool
+	Notif      bool
 	Father     aid
 }
 

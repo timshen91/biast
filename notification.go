@@ -4,35 +4,79 @@ import (
 	"exp/html"
 	"exp/html/atom"
 	"fmt"
+	"math/rand"
+	"net/http"
 	"net/smtp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func newCommentNotify(comm *Comment) {
 	// notify the article author
-	if father := getArticle(comm.Father); father.QuoteNotif {
+	if father := getArticle(comm.Father); father.Notif {
 		send(father.Email, "Your article has been commented", fmt.Sprintf(
 			`Dear %s, your comment on %s has been commented by %s:
 	<blockquote>%s</blockquote>
-	Click <a href="%s">here</a> for details
-	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id)))
+	Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.
+	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id), "http://"+config["Domain"]+config["ResponseUrl"]+allocRandomKey(getCloseArticleNotif(comm.Father))))
 	}
 	// notify the commenter
 	for _, id := range parseRef(comm.Content) {
-		if p := getComment(id); p != nil && p.QuoteNotif {
+		if p := getComment(id); p != nil && p.Notif {
 			if comm.Father == p.Father {
 				send(p.Email, "Your comment has been quoted", fmt.Sprintf(
 					`Dear %s, your comment on %s has been quoted by %s:
 <blockquote>%s</blockquote>
-Click <a href="%s">here</a> for details
-`, p.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(p.Father)+"#comment-"+fmt.Sprint(comm.Id)))
+Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.
+`, p.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(p.Father)+"#comment-"+fmt.Sprint(comm.Id), "http://"+config["Domain"]+config["ResponseUrl"]+allocRandomKey(getCloseCommentNotif(id))))
 			}
 		}
 	}
 }
 
+func getCloseArticleNotif(id aid) func() {
+	return func() {
+		article := getArticle(id)
+		article.Notif = false
+		setArticle(article)
+	}
+}
+
+func getCloseCommentNotif(id cid) func() {
+	return func() {
+		comment := getComment(id)
+		comment.Notif = false
+		setComment(comment)
+	}
+}
+
+func allocRandomKey(callback func()) string {
+	var key string
+	for {
+		key = fmt.Sprint(rand.Uint32())
+		if _, ex := responseCallback[key]; !ex {
+			responseCallback[key] = callback
+			break
+		}
+	}
+	return fmt.Sprint(key)
+}
+
+func mailResponseHandler(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Path[len(config["ResponseUrl"]):]
+	callback, ex := responseCallback[key]
+	if ex {
+		callback()
+		delete(responseCallback, key)
+		w.Write([]byte(`Success`))
+	} else {
+		w.Write([]byte(`Invalid key`))
+	}
+}
+
 var mailAuth smtp.Auth
+var responseCallback = map[string]func(){}
 
 func init() {
 	if _, ok := config["SMTPUsername"]; !ok {
@@ -45,6 +89,9 @@ func init() {
 		config["SMTPAddr"] = "127.0.0.1:25"
 	}
 	mailAuth = smtp.PlainAuth("", config["SMTPUsername"], config["SMTPPass"], config["SMTPAddr"])
+	rand.Seed(time.Now().Unix())
+	config["ResponseUrl"] = config["RootUrl"] + "response/"
+	http.HandleFunc(config["ResponseUrl"], mailResponseHandler)
 }
 
 func send(to, subject, msg string) {

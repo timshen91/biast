@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync/atomic"
 )
 
@@ -41,6 +42,7 @@ func getArticle(id aid) *Article {
 func setArticle(p *Article) {
 	id := p.Id
 	articles[id] = p
+	db.sync(articlePrefix, fmt.Sprint(p.Id), p)
 }
 
 func getComment(id cid) *Comment {
@@ -51,9 +53,23 @@ func getComment(id cid) *Comment {
 	return ret
 }
 
+func setComment(c *Comment) {
+	id := c.Id
+	comments[id] = c
+	db.sync(commentPrefix, fmt.Sprint(c.Id), c)
+	commentList := commentLists[c.Father]
+	for i, _ := range commentList {
+		if commentList[i].Id == id {
+			commentList[i] = c
+			break
+		}
+	}
+}
+
 func appendComment(p *Comment) { // FIXME probably not safe
 	id := p.Father
 	commentLists[id] = append(commentLists[id], p)
+	db.sync(commentPrefix, fmt.Sprint(p.Id), p)
 }
 
 func allocArticleId() aid {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"html"
 	"net/http"
 	"sort"
@@ -11,7 +10,7 @@ import (
 	"time"
 )
 
-func newArticle(w http.ResponseWriter, r *http.Request) {
+func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var feedback string
 	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
@@ -40,7 +39,6 @@ func newArticle(w http.ResponseWriter, r *http.Request) {
 				go updateTags(article.Id, nil, article.Tags)
 			}
 			setArticle(article)
-			db.sync(articlePrefix, fmt.Sprint(article.Id), article)
 			go updateIndexAndFeed()
 			// EventEnd: newArticle
 		}
@@ -110,7 +108,7 @@ func genArticle(r *http.Request) (*Article, error) {
 		Date:       time.Now(),
 		Title:      html.EscapeString(r.Form.Get("title")),
 		Content:    r.Form.Get("content"),
-		QuoteNotif: r.Form.Get("notify") == "on",
+		Notif:      r.Form.Get("notify") == "on",
 		Tags:       tagList,
 	}, nil
 }
@@ -123,5 +121,5 @@ func init() {
 		config["AdminUrl"] = config["AdminUrl"][1:]
 	}
 	config["AdminUrl"] = config["RootUrl"] + config["AdminUrl"]
-	http.HandleFunc(config["AdminUrl"], newArticle)
+	http.HandleFunc(config["AdminUrl"], newArticleHandler)
 }

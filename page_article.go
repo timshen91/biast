@@ -4,7 +4,6 @@ import (
 	"errors"
 	"exp/html"
 	"exp/html/atom"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -54,7 +53,6 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// EventStart: newComment
 			appendComment(comm)
-			db.sync(commentPrefix, fmt.Sprint(comm.Id), comm)
 			go newCommentNotify(comm)
 			// EventEnd: newComment
 		}
@@ -94,7 +92,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 		Date:       time.Now(),
 		Content:    content,
 		Father:     fid,
-		QuoteNotif: r.Form.Get("notify") == "on",
+		Notif:      r.Form.Get("notify") == "on",
 	}, nil
 }
 
