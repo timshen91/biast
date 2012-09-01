@@ -15,7 +15,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
 	if r.Method == "POST" {
-		temp, err := genArticle(r);
+		temp, err := genArticle(r)
 		if err == nil {
 			article = temp
 			if ok {
@@ -74,14 +74,18 @@ func parseId(url string) (id aid, ok bool) {
 	return aid(id64), true
 }
 
-func genTags(tagList string) []string { // tags shouldn't contain quote marks
-	ret := []string{}
+func genTags(tagList string) []string { // tags shouldn't contain quote marks, please don't ask why...
+	m := map[string]struct{}{}
 	for _, s := range strings.Split(tagList, ",") {
 		strings.Replace(s, "'", "", -1)
 		strings.Replace(s, "\"", "", -1)
 		if t := strings.TrimSpace(s); len(t) != 0 {
-			ret = append(ret, t)
+			m[t] = struct{}{}
 		}
+	}
+	ret := []string{}
+	for t, _ := range m {
+		ret = append(ret, t)
 	}
 	return ret
 }
@@ -95,10 +99,7 @@ func genArticle(r *http.Request) (*Article, error) {
 	if r.Form.Get("author") == "" || r.Form.Get("email") == "" || r.Form.Get("content") == "" || r.Form.Get("title") == "" {
 		return nil, errors.New("name, email, content and title can't be blank")
 	}
-	var tagList = []string{}
-	for _, t := range genTags(r.Form.Get("tags")) {
-		tagList = append(tagList, t)
-	}
+	tagList := genTags(r.Form.Get("tags"))
 	// may we need a filter?
 	return &Article{
 		Author:     html.EscapeString(r.Form.Get("author")),
