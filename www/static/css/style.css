@@ -11,6 +11,10 @@
 }
 
 .article {
+	border: 1px solid white;
+	box-shadow: 0 1px 10px #58B1B9;
+	margin: 40px auto;
+	padding: 20px;
 }
 
 .comment {
