@@ -85,7 +85,7 @@
 Tags:
 </p>
 <p>
-{{$url := .config.TagUrl}}
+{{$url := .config.TagsUrl}}
 {{range .article.Tags}}
 	<a href="{{$url}}{{.}}">{{.}}</a>
 {{end}}
@@ -170,7 +170,7 @@ Tags:
 Tags:
 </p>
 <p>
-{{$url := .config.TagUrl}}
+{{$url := .config.TagsUrl}}
 {{range .tags}}
 	<a href="{{$url}}{{.}}">{{.}}</a>
 {{end}}
