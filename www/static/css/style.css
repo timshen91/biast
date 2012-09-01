@@ -17,6 +17,11 @@
 	padding: 20px;
 }
 
+.article p {
+	line-height: 1.8em;
+	margin: 15px;
+}
+
 .comment {
 }
 

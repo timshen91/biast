@@ -167,6 +167,10 @@ L:
 	if err := t.Err(); err != io.EOF {
 		return "", err
 	}
+	for len(stack) > 0 {
+		ret += "</" + stack[len(stack) - 1].String() + ">"
+		stack = stack[:len(stack) - 1]
+	}
 	return ret, nil
 }
 
