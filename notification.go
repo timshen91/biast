@@ -16,12 +16,13 @@ func newCommentNotify(comm *Comment) {
 	// notify the article author
 	if father := getArticle(comm.Father); father.Notif {
 		send(father.Email, "Your article has been commented", fmt.Sprintf(
-			`Dear %s, your comment on %s has been commented by %s:
+			`Dear %s, your article on %s has been commented by %s:
 	<blockquote>%s</blockquote>
 	Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.
 	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id), "http://"+config["Domain"]+config["ResponseUrl"]+allocRandomKey(getCloseArticleNotif(comm.Father))))
 	}
 	// notify the commenter
+	fmt.Println(parseRef(comm.Content))
 	for _, id := range parseRef(comm.Content) {
 		if p := getComment(id); p != nil && p.Notif {
 			if comm.Father == p.Father {

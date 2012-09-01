@@ -4,6 +4,7 @@ import (
 	"errors"
 	"exp/html"
 	"exp/html/atom"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -48,10 +49,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 	var feedback string
 	if r.Method == "POST" {
 		comm, err := genComment(r, id)
-		if err != nil {
-			logger.Println(r.RemoteAddr+":", err.Error())
-			feedback = "Oops...! " + err.Error()
-		} else {
+		if err == nil {
 			setCookie("name", comm.Author, w)
 			setCookie("email", comm.Email, w)
 			setCookie("website", comm.Website, w)
@@ -59,7 +57,11 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 			appendComment(comm)
 			go newCommentNotify(comm)
 			// EventEnd: newComment
+			http.Redirect(w, r, "#comment-"+fmt.Sprint(comm.Id), http.StatusFound)
+			return
 		}
+		logger.Println(r.RemoteAddr+":", err.Error())
+		feedback = "Oops...! " + err.Error()
 	}
 	cookies := map[string]string{
 		"name":    "",

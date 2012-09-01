@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"net/http"
 	"strconv"
@@ -14,10 +15,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
 	if r.Method == "POST" {
-		feedback = "Article sent"
-		if temp, err := genArticle(r); err != nil {
-			feedback = "Oops...! " + err.Error()
-		} else {
+		if temp, err := genArticle(r); err == nil {
 			article = temp
 			if ok {
 				article.Id = idRequest
@@ -40,7 +38,10 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			setArticle(article)
 			go updateIndexAndFeed()
 			// EventEnd: newArticle
+			http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(article.Id), http.StatusFound)
+			return
 		}
+		feedback = "Oops...! " + err.Error()
 	} else {
 		if ok {
 			if temp := getArticle(idRequest); temp != nil {
@@ -48,7 +49,6 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
 	tagsNow := strings.Join(article.Tags, ", ")
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
