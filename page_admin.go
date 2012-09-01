@@ -4,7 +4,6 @@ import (
 	"errors"
 	"html"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -51,14 +50,12 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tagsNow := strings.Join(article.Tags, ", ")
-	allTags := getAllTags()
-	sort.Strings(allTags)
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
 		"form":     article,
 		"tagsNow":  tagsNow,
-		"allTags":  allTags,
+		"allTags":  getAllTags(),
 		"header":   "Admin Panel",
 	}); err != nil {
 		logger.Println("new:", err.Error())

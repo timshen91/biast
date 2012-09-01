@@ -10,8 +10,15 @@
 		<title>{{.header}}</title>
 	</head>
 	<body>
-		<div class="banner">
-			<div class="container">
+		<div class="navbar navbar-inner">
+			<ul class="nav">
+				<li><a href="{{.config.RootUrl}}">Home</a></li>
+				<li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
+				<li><a>About</a></li>
+			</ul>
+		</div>
+		<div class="container">
+			<div class="banner">
 				<a href="{{.config.RootUrl}}">
 					<img src="{{.config.RootUrl}}image/Logo.png" />
 				</a>

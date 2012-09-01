@@ -2,12 +2,13 @@ package main
 
 import (
 	"net/http"
+	"sort"
 )
 
 var tags2Article = map[string]map[aid]struct{}{}
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
-	tag := r.URL.Path[len(config["TagUrl"]):]
+	tag := r.URL.Path[len(config["TagsUrl"]):]
 	if indexList := getArticleByTag(tag); indexList == nil {
 		if err := tmpl.ExecuteTemplate(w, "tags", map[string]interface{}{
 			"config": config,
@@ -32,6 +33,7 @@ func getAllTags() []string {
 	for k, _ := range tags2Article {
 		ret = append(ret, k)
 	}
+	sort.Strings(ret)
 	return ret
 }
 
@@ -74,6 +76,6 @@ func initTags() {
 }
 
 func init() {
-	config["TagUrl"] = config["RootUrl"] + "tags/"
-	http.HandleFunc(config["TagUrl"], tagHandler)
+	config["TagsUrl"] = config["RootUrl"] + "tags/"
+	http.HandleFunc(config["TagsUrl"], tagHandler)
 }
