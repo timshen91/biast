@@ -67,7 +67,7 @@
 <div class="comment" id="comment-{{.Id}}">
 		<div class="comment_meta">
 		{{template "_meta" .}}
-		<button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn" style="float:right">Quote</button>
+		<button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn btn-mini" style="float:right">Quote</button>
 		</div>
 		<div id="comment_content-{{.Id}}" class="comment_content">
 		{{.Content}}
