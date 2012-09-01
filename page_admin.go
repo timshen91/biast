@@ -11,7 +11,6 @@ import (
 )
 
 func newArticleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	var feedback string
 	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
@@ -51,6 +50,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	tagsNow := strings.Join(article.Tags, ", ")
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,

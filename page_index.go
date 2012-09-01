@@ -80,8 +80,11 @@ func (this responseRewriter) Write(data []byte) (int, error) {
 	return this.Writer.Write(data)
 }
 
-func handler2HandlerFunc(h http.Handler) http.HandlerFunc {
+func handler2HandlerFunc(h http.Handler, contentType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if contentType != "" {
+			w.Header().Set("Content-Type", contentType)
+		}
 		h.ServeHTTP(w, r)
 	}
 }
