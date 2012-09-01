@@ -81,7 +81,9 @@ func genTags(tagList string) []string { // tags shouldn't contain quote marks
 	for _, s := range strings.Split(tagList, ",") {
 		strings.Replace(s, "'", "", -1)
 		strings.Replace(s, "\"", "", -1)
-		ret = append(ret, strings.TrimSpace(s))
+		if t := strings.TrimSpace(s); len(t) != 0 {
+			ret = append(ret, t)
+		}
 	}
 	return ret
 }
