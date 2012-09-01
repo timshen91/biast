@@ -6,6 +6,7 @@ import (
 	"exp/html/atom"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -51,16 +52,34 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 			logger.Println(r.RemoteAddr+":", err.Error())
 			feedback = "Oops...! " + err.Error()
 		} else {
+			setCookie("name", comm.Author, w)
+			setCookie("email", comm.Email, w)
+			setCookie("website", comm.Website, w)
 			// EventStart: newComment
 			appendComment(comm)
 			go newCommentNotify(comm)
 			// EventEnd: newComment
 		}
 	}
+	cookies := map[string]string{
+		"name":    "",
+		"email":   "",
+		"website": "",
+	}
+	if c, err := getCookie("name", r); err == nil {
+		cookies["name"] = c
+	}
+	if c, err := getCookie("email", r); err == nil {
+		cookies["email"] = c
+	}
+	if c, err := getCookie("website", r); err == nil {
+		cookies["website"] = c
+	}
 	if err := tmpl.ExecuteTemplate(w, "article", map[string]interface{}{
 		"config":   config,
 		"article":  p,
 		"comments": getCommentList(p.Id),
+		"cookies":  cookies,
 		"feedback": feedback,
 		"header":   p.Title,
 	}); err != nil {
@@ -149,6 +168,26 @@ L:
 		return "", err
 	}
 	return ret, nil
+}
+
+func setCookie(key, value string, w http.ResponseWriter) {
+	c := &http.Cookie{
+		Name:   key,
+		Value:  url.QueryEscape(value),
+		Path:   config["RootUrl"],
+		Domain: config["Domain"],
+		MaxAge: 1<<31 - 1,
+	}
+	http.SetCookie(w, c)
+}
+
+func getCookie(key string, r *http.Request) (string, error) {
+	if c, err := r.Cookie(key); err == nil {
+		if ret, err1 := url.QueryUnescape(c.Value); err1 == nil {
+			return ret, nil
+		}
+	}
+	return "", errors.New("invalid url escaped cookie")
 }
 
 func genWebsite(url string) string {

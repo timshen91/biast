@@ -88,13 +88,13 @@ Tags:
 <form class="post_form" id="comment_form" method="post">
 	<legend>Post a comment</legend>
 	<p>
-		<label><input name="author"/>Name</label>
+	<label><input name="author" value="{{.cookies.name}}"/>Name</label>
 	</p>
 	<p>
-		<label><input name="email"/>Email(won't be published)</label>
+	<label><input name="email" value="{{.cookies.email}}"/>Email(won't be published)</label>
 	</p>
 	<p>
-		<label><input name="website"/>Website(optional)</label>
+	<label><input name="website" value="{{.cookies.website}}"/>Website(optional)</label>
 	</p>
 	<p>
 		<textarea rows="10" name="content"></textarea>
