@@ -122,6 +122,7 @@ func init() {
 
 func htmlFilter(content string) (string, error) {
 	var ret string
+	ret = "<p>"
 	t := html.NewTokenizer(strings.NewReader(content))
 	stack := make([]atom.Atom, 0)
 L:
@@ -150,6 +151,7 @@ L:
 		case html.EndTagToken:
 			var top int = len(stack) - 1
 			for top >= 0 && stack[top] != token.DataAtom {
+
 				top--
 			}
 			if top == -1 {
@@ -168,9 +170,10 @@ L:
 		return "", err
 	}
 	for len(stack) > 0 {
-		ret += "</" + stack[len(stack) - 1].String() + ">"
-		stack = stack[:len(stack) - 1]
+		ret += "</" + stack[len(stack)-1].String() + ">"
+		stack = stack[:len(stack)-1]
 	}
+	ret += "</p>"
 	return ret, nil
 }
 

@@ -17,7 +17,7 @@
 	padding: 25px;
 }
 
-.article p {
+p {
 	line-height: 1.8em;
 }
 
@@ -39,6 +39,7 @@
 }
 
 .comment_content {
+	padding: 10px;
 }
 
 .post_form {
