@@ -115,8 +115,8 @@ func init() {
 		config["RootUrl"] += "/"
 	}
 	static := http.FileServer(http.Dir(config["DocumentPath"] + "static/"))
-	http.Handle(config["RootUrl"]+"js/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static), "text/javascript; charset=UTF-8")))
-	http.Handle(config["RootUrl"]+"css/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static), "text/css; charset=UTF-8")))
+	http.Handle(config["RootUrl"]+"js/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static))))
+	http.Handle(config["RootUrl"]+"css/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static))))
 	http.Handle(config["RootUrl"]+"image/", http.StripPrefix(config["RootUrl"], static))
 	// template init
 	tmpl = template.Must(template.ParseGlob(config["DocumentPath"] + "template/" + "*"))
