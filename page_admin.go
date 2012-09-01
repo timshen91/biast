@@ -15,7 +15,8 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
 	if r.Method == "POST" {
-		if temp, err := genArticle(r); err == nil {
+		temp, err := genArticle(r);
+		if err == nil {
 			article = temp
 			if ok {
 				article.Id = idRequest
