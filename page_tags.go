@@ -8,6 +8,7 @@ import (
 var tags2Article = map[string]map[aid]struct{}{}
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	tag := r.URL.Path[len(config["TagsUrl"]):]
 	if indexList := getArticleByTag(tag); indexList == nil {
 		if err := tmpl.ExecuteTemplate(w, "tags", map[string]interface{}{

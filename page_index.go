@@ -38,10 +38,12 @@ func updateIndexAndFeed() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	w.Write(indexCache.Bytes())
 }
 
 func feedHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	w.Write(feedCache.Bytes())
 }
 
@@ -69,18 +71,23 @@ func qsortForArticleList(a []*Article, l, r int) {
 	qsortForArticleList(a, j+1, r)
 }
 
-type ResponseRewriter struct {
+type responseRewriter struct {
 	http.ResponseWriter
 	io.Writer
 }
 
-func (this ResponseRewriter) Write(data []byte) (int, error) {
+func (this responseRewriter) Write(data []byte) (int, error) {
 	return this.Writer.Write(data)
+}
+
+func handler2HandlerFunc(h http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.ServeHTTP(w, r)
+	}
 }
 
 func getGzipHandler(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			f(w, r)
 			return
@@ -88,7 +95,7 @@ func getGzipHandler(f http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Content-Encoding", "gzip")
 		gw := gzip.NewWriter(w)
 		defer gw.Close()
-		f(ResponseRewriter{
+		f(responseRewriter{
 			http.ResponseWriter: w,
 			io.Writer:           gw,
 		}, r)

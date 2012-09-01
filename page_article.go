@@ -33,6 +33,7 @@ var validAtom = map[atom.Atom]map[string]struct{}{
 }
 
 func articleHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	id64, err := strconv.ParseUint(r.URL.Path[len(config["ArticleUrl"]):], 10, 32)
 	if err != nil {
 		logger.Println(r.RemoteAddr + ": 404 for an invalid id")
