@@ -122,5 +122,5 @@ func init() {
 		config["AdminUrl"] = config["AdminUrl"][1:]
 	}
 	config["AdminUrl"] = config["RootUrl"] + config["AdminUrl"]
-	http.HandleFunc(config["AdminUrl"], newArticleHandler)
+	http.HandleFunc(config["AdminUrl"], getGzipHandler(newArticleHandler))
 }

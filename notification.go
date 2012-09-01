@@ -92,7 +92,7 @@ func init() {
 	mailAuth = smtp.PlainAuth("", config["SMTPUsername"], config["SMTPPass"], config["SMTPAddr"])
 	rand.Seed(time.Now().Unix())
 	config["ResponseUrl"] = config["RootUrl"] + "response/"
-	http.HandleFunc(config["ResponseUrl"], mailResponseHandler)
+	http.HandleFunc(config["ResponseUrl"], getGzipHandler(mailResponseHandler))
 }
 
 func send(to, subject, msg string) {

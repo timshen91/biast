@@ -77,5 +77,5 @@ func initTags() {
 
 func init() {
 	config["TagsUrl"] = config["RootUrl"] + "tags/"
-	http.HandleFunc(config["TagsUrl"], tagHandler)
+	http.HandleFunc(config["TagsUrl"], getGzipHandler(tagHandler))
 }

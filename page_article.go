@@ -119,7 +119,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 
 func init() {
 	config["ArticleUrl"] = config["RootUrl"] + "article/"
-	http.HandleFunc(config["ArticleUrl"], articleHandler)
+	http.HandleFunc(config["ArticleUrl"], getGzipHandler(articleHandler))
 }
 
 func htmlFilter(content string) (string, error) {
