@@ -64,19 +64,6 @@ var db dbSync
 
 func main() {
 	logger.Println("Server start")
-	go func() {
-		ch := make(chan os.Signal)
-		signal.Notify(ch)
-		for {
-			switch sig := <-ch; sig {
-			case os.Interrupt, os.Kill, syscall.SIGTERM: // FIXME: this may not be portable
-				logger.Println("Server halt")
-				os.Exit(0)
-			}
-		}
-	}()
-	initManager()
-	updateIndexAndFeed()
 	if err := http.ListenAndServe(config["ServerAddr"], nil); err != nil {
 		logger.Println("Server cannot start")
 	}
@@ -102,7 +89,7 @@ func init() {
 			config[strings.TrimSpace(line[:pos])] = strings.TrimSpace(line[pos+1:])
 		}
 	}
-	if !checkKeyExist(config, "Domain", "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminUrl", "DbAddr", "DbPass", "DbId") {
+	if !checkKeyExist(config, "Domain", "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminList", "DbAddr", "DbPass", "DbId") {
 		panic("required config not exist")
 	}
 	if config["Domain"][len(config["Domain"])-1] == '/' {
@@ -113,6 +100,11 @@ func init() {
 	}
 	if config["RootUrl"][len(config["RootUrl"])-1] != '/' {
 		config["RootUrl"] += "/"
+	}
+	for _, s := range strings.Split(config["AdminList"], ",") {
+		if ss := strings.TrimSpace(s); ss != "" {
+			adminList[ss] = struct{}{}
+		}
 	}
 	static := http.FileServer(http.Dir(config["DocumentPath"] + "static/"))
 	http.Handle(config["RootUrl"]+"js/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static))))
@@ -130,8 +122,25 @@ func init() {
 	} else {
 		logger = log.New(os.Stderr, "biast: ", log.LstdFlags|log.Lshortfile)
 	}
-	// db init
+	// module init
 	initDb()
+	initManager()
+	initIndex()
+	initAdmin()
+	initPageArticle()
+	initNotification()
+	updateIndexAndFeed()
+	go func() {
+		ch := make(chan os.Signal)
+		signal.Notify(ch)
+		for {
+			switch sig := <-ch; sig {
+			case os.Interrupt, os.Kill, syscall.SIGTERM: // FIXME: this may not be portable
+				logger.Println("Server halt")
+				os.Exit(0)
+			}
+		}
+	}()
 }
 
 func checkKeyExist(m interface{}, args ...interface{}) bool {

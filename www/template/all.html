@@ -14,7 +14,8 @@
 			<ul class="nav">
 				<li><a href="{{.config.RootUrl}}">Home</a></li>
 				<li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
-				<li><a>About</a></li>
+				<li><a href="{{.config.AdminUrl}}">Contribute</a></li>
+				<li><a href="{{.config.RootUrl}}about">About</a></li>
 			</ul>
 		</div>
 		<div class="container">
@@ -175,4 +176,7 @@ Tags:
 {{end}}
 </p>
 {{template "_footer" .config}}
+{{end}}
+
+{{define "about"}}
 {{end}}

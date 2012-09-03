@@ -118,7 +118,7 @@ func genComment(r *http.Request, fid aid) (*Comment, error) {
 	}, nil
 }
 
-func init() {
+func initPageArticle() {
 	config["ArticleUrl"] = config["RootUrl"] + "article/"
 	http.HandleFunc(config["ArticleUrl"], getGzipHandler(articleHandler))
 }

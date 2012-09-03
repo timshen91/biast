@@ -65,6 +65,8 @@ func updateTags(id aid, old, tags []string) {
 }
 
 func initTags() {
+	config["TagsUrl"] = config["RootUrl"] + "tags/"
+	http.HandleFunc(config["TagsUrl"], getGzipHandler(tagHandler))
 	for _, article := range getArticleList() {
 		id := article.Id
 		for _, tag := range article.Tags {
@@ -74,9 +76,4 @@ func initTags() {
 			tags2Article[tag][id] = struct{}{}
 		}
 	}
-}
-
-func init() {
-	config["TagsUrl"] = config["RootUrl"] + "tags/"
-	http.HandleFunc(config["TagsUrl"], getGzipHandler(tagHandler))
 }

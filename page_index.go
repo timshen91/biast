@@ -47,7 +47,7 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(feedCache.Bytes())
 }
 
-func init() {
+func initIndex() {
 	http.HandleFunc(config["RootUrl"], getGzipHandler(indexHandler))
 	http.HandleFunc(config["RootUrl"]+"feed", getGzipHandler(feedHandler))
 }

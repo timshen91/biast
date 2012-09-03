@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"html"
 	"net/http"
 	"strconv"
@@ -15,34 +14,32 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var article = &Article{}
 	idRequest, ok := parseId(r.URL.Path)
 	if r.Method == "POST" {
-		temp, err := genArticle(r)
-		if err == nil {
+		if temp, err := genArticle(r); err != nil {
+			feedback = "Oops...! " + err.Error()
+			goto out
+		} else {
 			article = temp
-			if ok {
-				article.Id = idRequest
-			} else {
-				article.Id = allocArticleId()
-				article.Date = time.Now()
-			}
-			old := getArticle(article.Id)
-			if old != nil {
-				article.Date = old.Date
-			} else {
-				article.Date = time.Now()
-			}
-			// EventStart: newArticle
-			if old != nil {
-				go updateTags(article.Id, old.Tags, article.Tags)
-			} else {
-				go updateTags(article.Id, nil, article.Tags)
-			}
-			setArticle(article)
-			go updateIndexAndFeed()
-			// EventEnd: newArticle
-			http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(article.Id), http.StatusFound)
-			return
 		}
-		feedback = "Oops...! " + err.Error()
+		if err := checkArticle(article); err != nil {
+			feedback = "Oops...! " + err.Error()
+			goto out
+		}
+		if ok {
+			article.Id = idRequest
+		} else {
+			article.Id = allocArticleId()
+			article.Date = time.Now()
+		}
+		old := getArticle(article.Id)
+		if old != nil {
+			article.Date = old.Date
+		} else {
+			article.Date = time.Now()
+		}
+		// EventStart: newArticle
+		newArticleAuth(article, old)
+		// EventEnd: newArticle
+		feedback = "Welcome my dear admin! Mail request has been sent, please check your mail."
 	} else {
 		if ok {
 			if temp := getArticle(idRequest); temp != nil {
@@ -50,6 +47,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+out:
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	tagsNow := strings.Join(article.Tags, ", ")
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
@@ -97,9 +95,6 @@ func genArticle(r *http.Request) (*Article, error) {
 		logger.Println("new:", "required field not exists")
 		return nil, errors.New("required field not exists")
 	}
-	if r.Form.Get("author") == "" || r.Form.Get("email") == "" || r.Form.Get("content") == "" || r.Form.Get("title") == "" {
-		return nil, errors.New("name, email, content and title can't be blank")
-	}
 	tagList := genTags(r.Form.Get("tags"))
 	// may we need a filter?
 	return &Article{
@@ -115,13 +110,17 @@ func genArticle(r *http.Request) (*Article, error) {
 	}, nil
 }
 
-func init() {
-	if config["AdminUrl"][len(config["AdminUrl"])-1] != '/' {
-		config["AdminUrl"] += "/"
+func checkArticle(a *Article) error {
+	if a.Author == "" || a.Email == "" || a.Content == "" || a.Title == "" {
+		return errors.New("name, email, content and title can't be blank")
 	}
-	if config["AdminUrl"][0] == '/' {
-		config["AdminUrl"] = config["AdminUrl"][1:]
+	if _, ex := adminList[a.Email]; !ex {
+		return errors.New("this email is not registered as an admin")
 	}
-	config["AdminUrl"] = config["RootUrl"] + config["AdminUrl"]
+	return nil
+}
+
+func initAdmin() {
+	config["AdminUrl"] = config["RootUrl"] + "admin/"
 	http.HandleFunc(config["AdminUrl"], getGzipHandler(newArticleHandler))
 }

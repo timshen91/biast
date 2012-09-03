@@ -12,6 +12,7 @@ type cid uint32
 var articles = map[aid]*Article{}
 var comments = map[cid]*Comment{}
 var commentLists = map[aid][]*Comment{}
+var adminList = map[string]struct{}{}
 var articleHead aid
 var commentHead cid
 

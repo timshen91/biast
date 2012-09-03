@@ -12,6 +12,20 @@ import (
 	"time"
 )
 
+func newArticleAuth(a, old *Article) {
+	url := notifRegister(func(w http.ResponseWriter, r *http.Request) {
+		if old != nil {
+			go updateTags(a.Id, old.Tags, a.Tags)
+		} else {
+			go updateTags(a.Id, nil, a.Tags)
+		}
+		setArticle(a)
+		go updateIndexAndFeed()
+		http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(a.Id), http.StatusFound)
+	})
+	send(a.Email, "New article authentication", fmt.Sprintf(`Dear %s, you have an article to be authenticated for publishment. If you know what you are doing, please click <a href="%s">here</a>.`, a.Author, url))
+}
+
 func newCommentNotify(comm *Comment) {
 	// notify the article author
 	if father := getArticle(comm.Father); father.Notif {
@@ -19,7 +33,7 @@ func newCommentNotify(comm *Comment) {
 			`Dear %s, your article on %s has been commented by %s:
 	<blockquote>%s</blockquote>
 	Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.
-	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id), "http://"+config["Domain"]+config["ResponseUrl"]+allocRandomKey(getCloseArticleNotif(comm.Father))))
+	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id), notifRegister(getCloseArticleNotif(comm.Father))))
 	}
 	// notify the commenter
 	fmt.Println(parseRef(comm.Content))
@@ -30,29 +44,31 @@ func newCommentNotify(comm *Comment) {
 					`Dear %s, your comment on %s has been quoted by %s:
 <blockquote>%s</blockquote>
 Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.
-`, p.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(p.Father)+"#comment-"+fmt.Sprint(comm.Id), "http://"+config["Domain"]+config["ResponseUrl"]+allocRandomKey(getCloseCommentNotif(id))))
+`, p.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(p.Father)+"#comment-"+fmt.Sprint(comm.Id), notifRegister(getCloseCommentNotif(id))))
 			}
 		}
 	}
 }
 
-func getCloseArticleNotif(id aid) func() {
-	return func() {
+func getCloseArticleNotif(id aid) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		article := getArticle(id)
 		article.Notif = false
 		setArticle(article)
+		w.Write([]byte(`Successfully closed`))
 	}
 }
 
-func getCloseCommentNotif(id cid) func() {
-	return func() {
+func getCloseCommentNotif(id cid) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		comment := getComment(id)
 		comment.Notif = false
 		setComment(comment)
+		w.Write([]byte(`Successfully closed`))
 	}
 }
 
-func allocRandomKey(callback func()) string {
+func notifRegister(callback http.HandlerFunc) string {
 	var key string
 	for {
 		key = fmt.Sprint(rand.Uint32())
@@ -61,25 +77,24 @@ func allocRandomKey(callback func()) string {
 			break
 		}
 	}
-	return fmt.Sprint(key)
+	return "http://" + config["Domain"] + config["ResponseUrl"] + fmt.Sprint(key)
 }
 
 func mailResponseHandler(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Path[len(config["ResponseUrl"]):]
 	callback, ex := responseCallback[key]
 	if ex {
-		callback()
+		callback(w, r)
 		delete(responseCallback, key)
-		w.Write([]byte(`Success`))
 	} else {
-		w.Write([]byte(`Invalid key`))
+		w.Write([]byte(`Invalid request`))
 	}
 }
 
 var mailAuth smtp.Auth
-var responseCallback = map[string]func(){}
+var responseCallback = map[string]http.HandlerFunc{}
 
-func init() {
+func initNotification() {
 	if _, ok := config["SMTPUsername"]; !ok {
 		config["SMTPUsername"] = ""
 	}
