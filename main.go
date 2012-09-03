@@ -126,8 +126,9 @@ func init() {
 	initDb()
 	initManager()
 	initIndex()
-	initAdmin()
+	initPageAdmin()
 	initPageArticle()
+	initPageAbout()
 	initNotification()
 	updateIndexAndFeed()
 	go func() {

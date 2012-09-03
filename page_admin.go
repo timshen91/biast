@@ -123,7 +123,7 @@ func checkArticle(a *Article) error {
 	return nil
 }
 
-func initAdmin() {
+func initPageAdmin() {
 	config["AdminUrl"] = config["RootUrl"] + "admin/"
 	http.HandleFunc(config["AdminUrl"], getGzipHandler(newArticleHandler))
 }
