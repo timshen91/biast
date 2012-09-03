@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"sort"
+	officialSort "sort"
 )
 
 var tags2Article = map[string]map[aid]struct{}{}
@@ -34,7 +34,7 @@ func getAllTags() []string {
 	for k, _ := range tags2Article {
 		ret = append(ret, k)
 	}
-	sort.Strings(ret)
+	officialSort.Strings(ret)
 	return ret
 }
 
@@ -43,7 +43,9 @@ func getArticleByTag(t string) []*Article {
 	for id, _ := range tags2Article[t] {
 		ret = append(ret, getArticle(id))
 	}
-	qsortForArticleList(ret, 0, len(ret)-1)
+	sort(ret, func(a, b interface{}) bool {
+		return a.(*Article).Id > b.(*Article).Id
+	})
 	return ret
 }
 

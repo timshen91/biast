@@ -93,17 +93,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 func genComment(r *http.Request, fid aid) (*Comment, error) {
 	r.ParseForm()
 	if !checkKeyExist(r.Form, "author", "email", "content") {
-		return nil, errors.New("Required field not found")
+		return nil, errors.New("Required field not found.")
 	}
 	if len(r.Form.Get("author")) == 0 || len(r.Form.Get("email")) == 0 {
-		return nil, errors.New("Name, email and content can't be blank")
+		return nil, errors.New("Name, email and content can't be blank.")
 	}
 	content, err := htmlFilter(r.Form.Get("content"))
 	if err != nil {
 		return nil, err
 	}
 	if len(r.Form.Get("content")) == 0 {
-		return nil, errors.New("Name, email and content can't be blank")
+		return nil, errors.New("Name, email and content can't be blank.")
 	}
 	return &Comment{
 		Id:         allocCommentId(),
@@ -154,7 +154,6 @@ L:
 		case html.EndTagToken:
 			var top int = len(stack) - 1
 			for top >= 0 && stack[top] != token.DataAtom {
-
 				top--
 			}
 			if top == -1 {

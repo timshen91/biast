@@ -24,17 +24,20 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			feedback = "Oops...! " + err.Error()
 			goto out
 		}
-		if ok {
-			article.Id = idRequest
-		} else {
-			article.Id = allocArticleId()
-			article.Date = time.Now()
-		}
 		old := getArticle(article.Id)
+		if old.Email != article.Email {
+			feedback = "Oops..! " + "Only the author can modify its article."
+			goto out
+		}
 		if old != nil {
 			article.Date = old.Date
 		} else {
 			article.Date = time.Now()
+		}
+		if ok {
+			article.Id = idRequest
+		} else {
+			article.Id = allocArticleId()
 		}
 		// EventStart: newArticle
 		newArticleAuth(article, old)
@@ -92,8 +95,8 @@ func genTags(tagList string) []string { // tags shouldn't contain quote marks, p
 func genArticle(r *http.Request) (*Article, error) {
 	r.ParseForm()
 	if !checkKeyExist(r.Form, "author", "email", "content", "title") {
-		logger.Println("new:", "required field not exists")
-		return nil, errors.New("Required field not exists")
+		logger.Println("new:", "required field not exists.")
+		return nil, errors.New("Required field not exists.")
 	}
 	tagList := genTags(r.Form.Get("tags"))
 	// may we need a filter?
@@ -112,10 +115,10 @@ func genArticle(r *http.Request) (*Article, error) {
 
 func checkArticle(a *Article) error {
 	if a.Author == "" || a.Email == "" || a.Content == "" || a.Title == "" {
-		return errors.New("Name, email, content and title can't be blank")
+		return errors.New("Name, email, content and title can't be blank.")
 	}
 	if _, ex := adminList[a.Email]; !ex {
-		return errors.New("This email is not registered as an admin")
+		return errors.New("This email is not registered as an admin.")
 	}
 	return nil
 }

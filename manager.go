@@ -121,25 +121,8 @@ func initCommentList() {
 		}
 	}
 	for _, p := range commentLists {
-		qsortForCommentList(p, 0, len(p)-1)
+		sort(p, func(a, b interface{}) bool {
+			return a.(*Comment).Id < b.(*Comment).Id
+		})
 	}
-}
-
-func qsortForCommentList(a []*Comment, l, r int) {
-	if l > r {
-		return
-	}
-	i := l
-	j := (r-l)/2 + l
-	a[i], a[j] = a[j], a[i]
-	j = l
-	for i = l + 1; i <= r; i++ {
-		if a[i].Id < a[l].Id {
-			j++
-			a[j], a[i] = a[i], a[j]
-		}
-	}
-	a[j], a[l] = a[l], a[j]
-	qsortForCommentList(a, l, j-1)
-	qsortForCommentList(a, j+1, r)
 }

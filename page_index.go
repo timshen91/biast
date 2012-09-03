@@ -15,7 +15,9 @@ var feedCache *bytes.Buffer
 func updateIndexAndFeed() {
 	// TODO pager
 	indexList := getArticleList()
-	qsortForArticleList(indexList, 0, len(indexList)-1)
+	sort(indexList, func(a, b interface{}) bool {
+		return a.(*Article).Id > b.(*Article).Id
+	})
 	// index
 	newIndexCache := &bytes.Buffer{}
 	if err := tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
@@ -50,25 +52,6 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 func initIndex() {
 	http.HandleFunc(config["RootUrl"], getGzipHandler(indexHandler))
 	http.HandleFunc(config["RootUrl"]+"feed", getGzipHandler(feedHandler))
-}
-
-func qsortForArticleList(a []*Article, l, r int) {
-	if l > r {
-		return
-	}
-	i := l
-	j := (r-l)/2 + l
-	a[i], a[j] = a[j], a[i]
-	j = l
-	for i = l + 1; i <= r; i++ {
-		if a[i].Id > a[l].Id {
-			j++
-			a[j], a[i] = a[i], a[j]
-		}
-	}
-	a[j], a[l] = a[l], a[j]
-	qsortForArticleList(a, l, j-1)
-	qsortForArticleList(a, j+1, r)
 }
 
 type responseRewriter struct {
