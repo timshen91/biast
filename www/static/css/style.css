@@ -38,14 +38,18 @@ p {
 	padding: 10px;
 }
 
-.post_form {
+.article_post_form {
+	border: 1px solid white;
+	box-shadow: 0 1px 10px #58B1B9;
+	margin: 40px auto;
+	padding: 5%;
 }
 
-.post_form input {
+input {
 	border: 1px solid #DDDDDD;
 }
 
-.post_form textarea {
+textarea {
 	border: 1px solid #DDDDDD;
 	width: 90%;
 }

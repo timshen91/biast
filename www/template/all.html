@@ -92,7 +92,7 @@ Tags:
 </p>
 {{template "_comment" .comments}}
 <span style="color:red">{{.feedback}}</span>
-<form class="post_form" id="comment_form" method="post">
+<form class="comment_post_form" id="comment_form" method="post">
 	<legend>Post a comment</legend>
 	<p>
 	<label><input name="author" value="{{.cookies.name}}"/>Name</label>
@@ -127,8 +127,8 @@ Tags:
 {{define "new"}}
 {{template "_header" .}}
 <span style="color:red">{{.feedback}}</span>
-<form class="post_form" method="post">
-	<legend>Post an article</legend>
+<form class="article_post_form" method="post">
+	<legend>Post an article(maintainers only)</legend>
 	<p>
 		<label><input name="title" value="{{.form.Title}}">Title</label>
 	</p>

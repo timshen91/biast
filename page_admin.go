@@ -93,7 +93,7 @@ func genArticle(r *http.Request) (*Article, error) {
 	r.ParseForm()
 	if !checkKeyExist(r.Form, "author", "email", "content", "title") {
 		logger.Println("new:", "required field not exists")
-		return nil, errors.New("required field not exists")
+		return nil, errors.New("Required field not exists")
 	}
 	tagList := genTags(r.Form.Get("tags"))
 	// may we need a filter?
@@ -112,10 +112,10 @@ func genArticle(r *http.Request) (*Article, error) {
 
 func checkArticle(a *Article) error {
 	if a.Author == "" || a.Email == "" || a.Content == "" || a.Title == "" {
-		return errors.New("name, email, content and title can't be blank")
+		return errors.New("Name, email, content and title can't be blank")
 	}
 	if _, ex := adminList[a.Email]; !ex {
-		return errors.New("this email is not registered as an admin")
+		return errors.New("This email is not registered as an admin")
 	}
 	return nil
 }
