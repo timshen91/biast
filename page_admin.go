@@ -25,7 +25,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			goto out
 		}
 		old := getArticle(article.Id)
-		if old.Email != article.Email {
+		if old != nil && old.Email != article.Email {
 			feedback = "Oops..! " + "Only the author can modify its article."
 			goto out
 		}
