@@ -121,7 +121,7 @@ func initCommentList() {
 		}
 	}
 	for _, p := range commentLists {
-		sort(p, func(a, b interface{}) bool {
+		sortSlice(p, func(a, b interface{}) bool {
 			return a.(*Comment).Id < b.(*Comment).Id
 		})
 	}

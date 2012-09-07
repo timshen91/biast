@@ -43,7 +43,7 @@ func getArticleByTag(t string) []*Article {
 	for id, _ := range tags2Article[t] {
 		ret = append(ret, getArticle(id))
 	}
-	sort(ret, func(a, b interface{}) bool {
+	sortSlice(ret, func(a, b interface{}) bool {
 		return a.(*Article).Id > b.(*Article).Id
 	})
 	return ret

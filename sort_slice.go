@@ -13,7 +13,7 @@ func swap(a, b reflect.Value) {
 	b.Set(temp)
 }
 
-func sort(a interface{}, cmp compareFunc) { // a should be a slice
+func sortSlice(a interface{}, cmp compareFunc) { // a should be a slice
 	v := reflect.ValueOf(a)
 	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
 		return

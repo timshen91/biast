@@ -15,7 +15,7 @@ var feedCache *bytes.Buffer
 func updateIndexAndFeed() {
 	// TODO pager
 	indexList := getArticleList()
-	sort(indexList, func(a, b interface{}) bool {
+	sortSlice(indexList, func(a, b interface{}) bool {
 		return a.(*Article).Id > b.(*Article).Id
 	})
 	// index
