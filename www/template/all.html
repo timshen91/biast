@@ -49,7 +49,7 @@
 {{end}}
 
 {{define "_article"}}
-<div class="article">
+<div class="box">
 	<div class="title">
 		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
 	</div>
@@ -166,14 +166,17 @@ Tags:
 
 {{define "tags"}}
 {{template "_header" .}}
-<p>
-Tags:
-</p>
-<p>
-{{$url := .config.TagsUrl}}
-{{range .tags}}
-	<a href="{{$url}}{{.}}">{{.}}</a>
-{{end}}
-</p>
+<div class="box">
+	<div class="title">
+		<h1>Tags</h1>
+	</div>
+	<hr/>
+	<p>
+	{{$url := .config.TagsUrl}}
+	{{range .tags}}
+		<a href="{{$url}}{{.}}">{{.}}</a>
+	{{end}}
+	</p>
+</div>
 {{template "_footer" .config}}
 {{end}}

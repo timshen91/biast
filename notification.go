@@ -36,7 +36,6 @@ func newCommentNotify(comm *Comment) {
 	`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id), notifRegister(getCloseArticleNotif(comm.Father))))
 	}
 	// notify the commenter
-	fmt.Println(parseRef(comm.Content))
 	for _, id := range parseRef(comm.Content) {
 		if p := getComment(id); p != nil && p.Notif {
 			if comm.Father == p.Father {
@@ -112,7 +111,7 @@ func initNotification() {
 
 func send(to, subject, msg string) {
 	logger.Println("notification:", "SendMail:", msg, "for", to)
-	if err := smtp.SendMail(config["SMTPAddr"], mailAuth, "admin@"+config["Domain"], []string{to}, []byte("To: "+to+"\nSubject: "+subject+"\nContent-Type: text/html; charset=\"UTF-8\"\n"+msg)); err != nil {
+	if err := smtp.SendMail(config["SMTPAddr"], mailAuth, "no-reply@"+config["Domain"], []string{to}, []byte("To: "+to+"\nSubject: "+subject+"\nContent-Type: text/html; charset=\"UTF-8\"\n"+msg)); err != nil {
 		logger.Println("SendMail:", err.Error())
 	}
 }

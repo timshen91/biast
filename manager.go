@@ -88,7 +88,7 @@ func allocId(head *uint32) uint32 {
 func initManager() {
 	initArticleList()
 	initCommentList()
-	initTags()
+	initPageTags()
 }
 
 func initArticleList() {
