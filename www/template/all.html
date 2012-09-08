@@ -51,7 +51,7 @@
 {{end}}
 
 {{define "_article"}}
-<div class="box">
+<div name="article-{{.Id}}" id="article-{{.Id}}" class="box">
 	<div class="title">
 		<h1><a href="/article/{{.Id}}">{{.Title}}</a></h1>
 	</div>
@@ -145,7 +145,7 @@ Tags:
 		<label><input name="website" value="{{.form.Website}}"/>Website(optional)</label>
 	</p>
 	<p>
-		<label>Content (Plain HTML, please)</label>
+		<label>Content (RAW HTML, please)</label>
 		<textarea rows="10" name="content">{{.form.Content}}</textarea>
 	</p>
 	<p>
