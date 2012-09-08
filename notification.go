@@ -12,24 +12,6 @@ import (
 	"time"
 )
 
-func newArticleAuth(a, old *Article) {
-	url := notifRegister(func(w http.ResponseWriter, r *http.Request) {
-		if old != nil {
-			go updateTags(a.Id, old.Tags, a.Tags)
-		} else {
-			go updateTags(a.Id, nil, a.Tags)
-		}
-		setArticle(a)
-		go updateIndexAndFeed()
-		http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(a.Id), http.StatusFound)
-	})
-	send(a.Email, "New article authentication", fmt.Sprintf(`<p>Dear %s, you have an article to be authenticated for publishment:
-<p>
-%s
-</p></p>
-<p>If you know what you are doing, please click <a href="%s">here</a>.</p>`, a.Author, a.Content, url))
-}
-
 func newCommentNotify(comm *Comment) {
 	// notify the article author
 	if father := getArticle(comm.Father); father.Notif {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"net/http"
 	"strconv"
@@ -12,8 +13,8 @@ import (
 func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var feedback string
 	var article = &Article{}
-	old, ok := getOld(r.URL.Path)
 	r.ParseForm()
+	old, ok := getOld(r.URL.Path)
 	if r.Method == "POST" {
 		if temp, err := genArticle(r); err != nil {
 			feedback = "Oops...! " + err.Error()
@@ -52,17 +53,21 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		feedback = "Welcome my dear admin! Mail request has been sent, please check your mail."
 	} else {
 		if ok {
-			old.Email = ""
 			article = old
 		}
 	}
 out:
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	tagsNow := strings.Join(article.Tags, ", ")
+	pVersion := *article
+	pVersion.Title = html.EscapeString(pVersion.Content)
+	pVersion.Author = html.EscapeString(pVersion.Content)
+	pVersion.Website = html.EscapeString(pVersion.Content)
+	pVersion.Content = html.EscapeString(pVersion.Content)
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
-		"form":     article,
+		"form":     pVersion,
 		"tagsNow":  tagsNow,
 		"allTags":  getAllTags(),
 		"header":   "Admin Panel",
@@ -86,6 +91,24 @@ func getOld(url string) (old *Article, ex bool) {
 	return ret, true
 }
 
+func newArticleAuth(a, old *Article) {
+	url := notifRegister(func(w http.ResponseWriter, r *http.Request) {
+		if old != nil {
+			go updateTags(a.Id, old.Tags, a.Tags)
+		} else {
+			go updateTags(a.Id, nil, a.Tags)
+		}
+		setArticle(a)
+		go updateIndexAndFeed()
+		http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(a.Id), http.StatusFound)
+	})
+	send(a.Email, "New article authentication", fmt.Sprintf(`<p>Dear %s, you have an article to be authenticated for publishment:
+<p>
+%s
+</p></p>
+<p>If you know what you are doing, please click <a href="%s">here</a>.</p>`, a.Author, a.Content, url))
+}
+
 func genTags(tagList string) []string { // tags shouldn't contain quote marks, please don't ask why...
 	m := map[string]struct{}{}
 	for _, s := range strings.Split(tagList, ",") {
@@ -99,6 +122,9 @@ func genTags(tagList string) []string { // tags shouldn't contain quote marks, p
 	for t, _ := range m {
 		ret = append(ret, t)
 	}
+	sortSlice(ret, func(a, b interface{}) bool {
+		return a.(string) < b.(string)
+	})
 	return ret
 }
 
