@@ -130,7 +130,8 @@ Tags:
 {{template "_header" .}}
 <span style="color:red">{{.feedback}}</span>
 <form class="article_post_form" method="post">
-	<legend>Post an article(maintainers only)</legend>
+	<legend>Post an article (maintainers only)</legend>
+	<p>(visit {{.config.AdminUrl}}{id} for editing an exist article)</p>
 	<p>
 		<label><input name="title" value="{{.form.Title}}">Title</label>
 	</p>
