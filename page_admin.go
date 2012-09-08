@@ -45,7 +45,6 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			article.Date = old.Date
 		} else {
 			article.Id = allocArticleId()
-			article.Date = time.Now()
 		}
 		// EventStart: newArticle
 		newArticleAuth(article, old)
@@ -53,6 +52,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		feedback = "Welcome my dear admin! Mail request has been sent, please check your mail."
 	} else {
 		if ok {
+			old.Email = ""
 			article = old
 		}
 	}
