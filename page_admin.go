@@ -38,7 +38,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if ok {
 			if old.Email != article.Email {
-				feedback = "Oops..! " + "Only the author can modify its article."
+				feedback = "Oops..! " + "This email address can't be the author."
 				goto out
 			}
 			article.Id = old.Id
@@ -123,7 +123,7 @@ func checkArticle(a *Article) error {
 		return errors.New("Name, email, content and title can't be blank.")
 	}
 	if _, ex := adminList[a.Email]; !ex {
-		return errors.New("This email is not registered as an admin.")
+		return errors.New("This email address can't be the author.")
 	}
 	return nil
 }
