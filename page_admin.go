@@ -60,9 +60,9 @@ out:
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	tagsNow := strings.Join(article.Tags, ", ")
 	pVersion := *article
-	pVersion.Title = html.EscapeString(pVersion.Content)
-	pVersion.Author = html.EscapeString(pVersion.Content)
-	pVersion.Website = html.EscapeString(pVersion.Content)
+	pVersion.Title = html.EscapeString(pVersion.Title)
+	pVersion.Author = html.EscapeString(pVersion.Author)
+	pVersion.Website = html.EscapeString(pVersion.Website)
 	pVersion.Content = html.EscapeString(pVersion.Content)
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
