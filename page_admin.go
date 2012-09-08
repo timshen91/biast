@@ -12,7 +12,8 @@ import (
 func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var feedback string
 	var article = &Article{}
-	idRequest, ok := parseId(r.URL.Path)
+	old, ok := getOld(r.URL.Path)
+	r.ParseForm()
 	if r.Method == "POST" {
 		if temp, err := genArticle(r); err != nil {
 			feedback = "Oops...! " + err.Error()
@@ -20,24 +21,31 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			article = temp
 		}
+		if r.Form.Get("post") == "preview" {
+			w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+			if err := tmpl.ExecuteTemplate(w, "preview", map[string]interface{}{
+				"config":  config,
+				"article": article,
+				"header":  article.Title + "(Preview)",
+			}); err != nil {
+				logger.Println("new:", err.Error())
+			}
+			return
+		}
 		if err := checkArticle(article); err != nil {
 			feedback = "Oops...! " + err.Error()
 			goto out
 		}
-		old := getArticle(article.Id)
-		if old != nil && old.Email != article.Email {
-			feedback = "Oops..! " + "Only the author can modify its article."
-			goto out
-		}
-		if old != nil {
+		if ok {
+			if old.Email != article.Email {
+				feedback = "Oops..! " + "Only the author can modify its article."
+				goto out
+			}
+			article.Id = old.Id
 			article.Date = old.Date
 		} else {
-			article.Date = time.Now()
-		}
-		if ok {
-			article.Id = idRequest
-		} else {
 			article.Id = allocArticleId()
+			article.Date = time.Now()
 		}
 		// EventStart: newArticle
 		newArticleAuth(article, old)
@@ -45,9 +53,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		feedback = "Welcome my dear admin! Mail request has been sent, please check your mail."
 	} else {
 		if ok {
-			if temp := getArticle(idRequest); temp != nil {
-				article = temp
-			}
+			article = old
 		}
 	}
 out:
@@ -65,15 +71,19 @@ out:
 	}
 }
 
-func parseId(url string) (id aid, ok bool) {
+func getOld(url string) (old *Article, ex bool) {
 	if url[len(config["AdminUrl"]):] == "" {
-		return 0, false
+		return nil, false
 	}
 	id64, err := strconv.ParseUint(url[len(config["AdminUrl"]):], 10, 32)
 	if err != nil {
-		return 0, false
+		return nil, false
 	}
-	return aid(id64), true
+	ret := getArticle(aid(id64))
+	if ret == nil {
+		return nil, false
+	}
+	return ret, true
 }
 
 func genTags(tagList string) []string { // tags shouldn't contain quote marks, please don't ask why...
@@ -93,11 +103,6 @@ func genTags(tagList string) []string { // tags shouldn't contain quote marks, p
 }
 
 func genArticle(r *http.Request) (*Article, error) {
-	r.ParseForm()
-	if !checkKeyExist(r.Form, "author", "email", "content", "title") {
-		logger.Println("new:", "required field not exists.")
-		return nil, errors.New("Required field not exists.")
-	}
 	tagList := genTags(r.Form.Get("tags"))
 	// may we need a filter?
 	return &Article{

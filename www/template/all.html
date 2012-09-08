@@ -15,6 +15,7 @@
 				<li><a href="{{.config.RootUrl}}">Home</a></li>
 				<li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
 				<li><a href="{{.config.AdminUrl}}">Contribute</a></li>
+				<li><a href="{{.config.RootUrl}}feed" target="_blank">Feed</a></li>
 				<li><a href="{{.config.RootUrl}}about">About</a></li>
 			</ul>
 		</div>
@@ -29,6 +30,7 @@
 {{end}}
 
 {{define "_footer"}}
+			<hr/>
 		</div>
 		<div class="footer">
 			<p>Powered by <a href="https://github.com/innocentim/biast" target="_blank">Biast</a>
@@ -90,6 +92,7 @@ Tags:
 	<a href="{{$url}}{{.}}">{{.}}</a>
 {{end}}
 </p>
+<hr/>
 {{template "_comment" .comments}}
 <span style="color:red">{{.feedback}}</span>
 <form class="comment_post_form" id="comment_form" method="post">
@@ -155,7 +158,8 @@ Tags:
 	{{end}}
 	</p>
 	<p>
-		<button type="submit" class="btn btn-primary" name="post">Submit</button>
+		<button type="submit" class="btn" name="post" value="preview" onclick="document.forms[0].target = '_blank';">Preview</button>
+		<button type="submit" class="btn btn-primary" name="post" value="submit" onclick="document.forms[0].target = '';">Submit</button>
 		<label class="checkbox inline" for="notify">
 			<input type="checkbox" name="notify" checked="checked">Send Email notification when commented
 		</label>
@@ -178,5 +182,20 @@ Tags:
 	{{end}}
 	</p>
 </div>
+{{template "_footer" .config}}
+{{end}}
+
+{{define "preview"}}
+{{template "_header" .}}
+{{template "_article" .article}}
+<p>
+Tags:
+</p>
+<p>
+{{$url := .config.TagsUrl}}
+{{range .article.Tags}}
+	<a href="{{$url}}{{.}}">{{.}}</a>
+{{end}}
+</p>
 {{template "_footer" .config}}
 {{end}}

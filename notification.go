@@ -23,7 +23,11 @@ func newArticleAuth(a, old *Article) {
 		go updateIndexAndFeed()
 		http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(a.Id), http.StatusFound)
 	})
-	send(a.Email, "New article authentication", fmt.Sprintf(`Dear %s, you have an article to be authenticated for publishment. If you know what you are doing, please click <a href="%s">here</a>.`, a.Author, url))
+	send(a.Email, "New article authentication", fmt.Sprintf(`<p>Dear %s, you have an article to be authenticated for publishment:
+<p>
+%s
+</p></p>
+<p>If you know what you are doing, please click <a href="%s">here</a>.</p>`, a.Author, a.Content, url))
 }
 
 func newCommentNotify(comm *Comment) {
