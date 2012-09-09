@@ -110,8 +110,6 @@ func init() {
 	http.Handle(config["RootUrl"]+"js/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static))))
 	http.Handle(config["RootUrl"]+"css/", getGzipHandler(handler2HandlerFunc(http.StripPrefix(config["RootUrl"], static))))
 	http.Handle(config["RootUrl"]+"image/", http.StripPrefix(config["RootUrl"], static))
-	// template init
-	tmpl = template.Must(template.ParseGlob(config["DocumentPath"] + "template/" + "*"))
 	// logger
 	if _, ok := config["LogPath"]; ok {
 		logWriter, err := os.OpenFile(config["LogPath"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
@@ -130,7 +128,20 @@ func init() {
 	initPageArticle()
 	initPageAbout()
 	initNotification()
-	updateIndexAndFeed()
+	// template init and its coroutine
+	go func() {
+		for {
+			t, err := template.ParseGlob(config["DocumentPath"] + "template/" + "*")
+			if err != nil {
+				logger.Println("reparse template failed")
+			} else {
+				tmpl = t
+				updateIndexAndFeed()
+				logger.Println("reparse template succ")
+			}
+			time.Sleep(time.Minute)
+		}
+	}()
 	go func() {
 		ch := make(chan os.Signal)
 		signal.Notify(ch)

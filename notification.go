@@ -58,10 +58,11 @@ func notifRegister(callback http.HandlerFunc) string {
 	for {
 		key = fmt.Sprint(rand.Uint32())
 		if _, ex := responseCallback[key]; !ex {
-			responseCallback[key] = callback
 			break
 		}
 	}
+	responseCallback[key] = callback
+	cbCleanChan <- cleanReq{key, time.Now().Add(time.Hour * 24)}
 	return "http://" + config["Domain"] + config["ResponseUrl"] + fmt.Sprint(key)
 }
 
@@ -76,8 +77,14 @@ func mailResponseHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type cleanReq struct {
+	key    string
+	expire time.Time
+}
+
 var mailAuth smtp.Auth
 var responseCallback = map[string]http.HandlerFunc{}
+var cbCleanChan = make(chan cleanReq, 1024)
 
 func initNotification() {
 	if _, ok := config["SMTPUsername"]; !ok {
@@ -92,7 +99,15 @@ func initNotification() {
 	mailAuth = smtp.PlainAuth("", config["SMTPUsername"], config["SMTPPass"], config["SMTPAddr"])
 	rand.Seed(time.Now().Unix())
 	config["ResponseUrl"] = config["RootUrl"] + "response/"
-	http.HandleFunc(config["ResponseUrl"], getGzipHandler(mailResponseHandler))
+	http.HandleFunc(config["ResponseUrl"], mailResponseHandler)
+	// cleaner
+	go func() {
+		for {
+			req := <-cbCleanChan
+			time.Sleep(-time.Since(req.expire))
+			delete(responseCallback, req.key)
+		}
+	}()
 }
 
 func send(to, subject, msg string) {
