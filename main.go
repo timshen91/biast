@@ -137,7 +137,6 @@ func init() {
 			} else {
 				tmpl = t
 				updateIndexAndFeed()
-				logger.Println("reparse template succ")
 			}
 			time.Sleep(time.Minute)
 		}
