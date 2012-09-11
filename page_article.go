@@ -132,7 +132,7 @@ L:
 	for {
 		t.Next()
 		token := t.Token()
-		str := html.UnescapeString(token.String())
+		str := token.String()
 		switch token.Type {
 		case html.StartTagToken, html.SelfClosingTagToken:
 			ans := false
@@ -163,7 +163,7 @@ L:
 				ret += str
 			}
 		case html.TextToken:
-			ret += html.EscapeString(str)
+			ret += str
 		case html.ErrorToken:
 			break L
 		}
