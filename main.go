@@ -66,7 +66,7 @@ var db dbSync
 func main() {
 	logger.Println("Server start")
 	if err := http.ListenAndServe(config["ServerAddr"], nil); err != nil {
-		logger.Println("Server cannot start")
+		logger.Println("Server cannot start", err.Error())
 	}
 }
 

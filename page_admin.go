@@ -135,6 +135,7 @@ func genTags(tagList string) []string { // tags shouldn't contain quote marks, p
 func genArticle(r *http.Request) (*Article, error) {
 	tagList := genTags(r.Form.Get("tags"))
 	// may we need a filter?
+
 	return &Article{
 		Author:     html.EscapeString(r.Form.Get("author")),
 		Email:      html.EscapeString(r.Form.Get("email")),
@@ -161,15 +162,27 @@ L:
 		str := html.UnescapeString(token.String())
 		switch token.Type {
 		case html.StartTagToken:
-			if token.Data == "latex" {
-				latex = true
+			if latex {
+				latexSrc += str
+			} else {
+				if token.Data == "latex" {
+					latex = true
+				} else {
+					ret += str
+				}
 			}
 		case html.ErrorToken:
 			break L
 		case html.EndTagToken:
-			if token.Data == "latex" {
-				latex = false
-				ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), html.EscapeString(latexSrc))
+			if latex {
+				if token.Data == "latex" {
+					latex = false
+					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), html.EscapeString(latexSrc))
+				} else {
+					latexSrc += str
+				}
+			} else {
+				ret += str
 			}
 		default:
 			if latex {
