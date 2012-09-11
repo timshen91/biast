@@ -160,7 +160,7 @@ L:
 	for {
 		t.Next()
 		token := t.Token()
-		str := html.UnescapeString(token.String())
+		str := token.String()
 		if latex {
 			switch token.Type {
 			case html.ErrorToken:
@@ -168,7 +168,7 @@ L:
 			case html.EndTagToken:
 				if token.Data == "latex" {
 					latex = false
-					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), html.EscapeString(latexSrc))
+					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), latexSrc)
 				} else {
 					latexSrc += str
 				}
