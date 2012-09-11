@@ -50,6 +50,11 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func initIndex() {
+	if config["RootUrl"] != "/" {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, config["RootUrl"], http.StatusFound)
+		})
+	}
 	http.HandleFunc(config["RootUrl"], getGzipHandler(indexHandler))
 	http.HandleFunc(config["RootUrl"]+"feed", getGzipHandler(feedHandler))
 }

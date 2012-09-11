@@ -99,6 +99,9 @@ func init() {
 	if config["DocumentPath"][len(config["DocumentPath"])-1] != '/' {
 		config["DocumentPath"] += "/"
 	}
+	if config["RootUrl"][0] != '/' {
+		config["RootUrl"] = "/" + config["RootUrl"]
+	}
 	if config["RootUrl"][len(config["RootUrl"])-1] != '/' {
 		config["RootUrl"] += "/"
 	}
