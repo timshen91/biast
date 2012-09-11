@@ -52,7 +52,7 @@
 {{define "_article"}}
 <div name="article-{{.article.Id}}" id="article-{{.article.Id}}" class="box">
 	<div class="title">
-		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.Title}}</a></h1>
+		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
 	</div>
 	<div class="article_meta">
 	{{template "_meta" .}}
@@ -120,8 +120,18 @@ Tags:
 
 {{define "index"}}
 {{template "_header" .}}
+{{$articleUrl := .config.ArticleUrl}}
 {{range .articles}}
-	{{template "_article" .}}
+	<div name="article-{{.Id}}" id="article-{{.Id}}" class="box">
+		<div class="title">
+			<h1><a href="{{$articleUrl}}{{.Id}}">{{.Title}}</a></h1>
+		</div>
+		<div class="article_meta">
+		{{template "_meta" .}}
+		</div>
+		<hr/>
+		{{.Content}}
+	</div>
 {{end}}
 {{template "_footer" .config}}
 {{end}}
