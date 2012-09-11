@@ -26,6 +26,10 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			article = temp
 		}
+		if err := checkArticle(article); err != nil {
+			feedback = "Oops...! " + err.Error()
+			goto out
+		}
 		if r.Form.Get("post") == "preview" {
 			w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 			if err := tmpl.ExecuteTemplate(w, "preview", map[string]interface{}{
@@ -36,10 +40,6 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 				logger.Println("new:", err.Error())
 			}
 			return
-		}
-		if err := checkArticle(article); err != nil {
-			feedback = "Oops...! " + err.Error()
-			goto out
 		}
 		if ok {
 			if old.Email != article.Email {
@@ -71,6 +71,7 @@ out:
 			"Author":  html.EscapeString(article.Author),
 			"Website": html.EscapeString(article.Website),
 			"Content": html.EscapeString(article.Src),
+			"Email":   html.EscapeString(r.Form.Get("email")),
 		},
 		"tagsNow": tagsNow,
 		"allTags": getAllTags(),
@@ -160,34 +161,31 @@ L:
 		t.Next()
 		token := t.Token()
 		str := html.UnescapeString(token.String())
-		switch token.Type {
-		case html.StartTagToken:
-			if latex {
-				latexSrc += str
-			} else {
-				if token.Data == "latex" {
-					latex = true
-				} else {
-					ret += str
-				}
-			}
-		case html.ErrorToken:
-			break L
-		case html.EndTagToken:
-			if latex {
+		if latex {
+			switch token.Type {
+			case html.ErrorToken:
+				break L
+			case html.EndTagToken:
 				if token.Data == "latex" {
 					latex = false
 					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), html.EscapeString(latexSrc))
 				} else {
 					latexSrc += str
 				}
-			} else {
-				ret += str
-			}
-		default:
-			if latex {
+			default:
 				latexSrc += str
-			} else {
+			}
+		} else {
+			switch token.Type {
+			case html.ErrorToken:
+				break L
+			case html.StartTagToken:
+				if token.Data == "latex" {
+					latex = true
+				} else {
+					ret += str
+				}
+			default:
 				ret += str
 			}
 		}
