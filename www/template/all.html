@@ -50,9 +50,9 @@
 {{end}}
 
 {{define "_article"}}
-<div name="article-{{.Id}}" id="article-{{.Id}}" class="box">
+<div name="article-{{.article.Id}}" id="article-{{.article.Id}}" class="box">
 	<div class="title">
-		<h1><a href="{{.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
+		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.Title}}</a></h1>
 	</div>
 	<div class="article_meta">
 	{{template "_meta" .}}
@@ -81,7 +81,7 @@
 
 {{define "article"}}
 {{template "_header" .}}
-{{template "_article" .article}}
+{{template "_article" .}}
 <p>
 Tags:
 </p>
@@ -188,7 +188,7 @@ Tags:
 
 {{define "preview"}}
 {{template "_header" .}}
-{{template "_article" .article}}
+{{template "_article" .}}
 <p>
 Tags:
 </p>
