@@ -100,6 +100,9 @@ func initArticleList() {
 			continue
 		}
 		articles[p.Id] = p
+		if p.Src == "" {
+			p.Src = p.Content
+		}
 		if articleHead < p.Id {
 			articleHead = p.Id
 		}
