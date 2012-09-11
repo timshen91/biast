@@ -1,12 +1,16 @@
 package main
 
 import (
+	"crypto/md5"
 	"errors"
+	"exp/html"
 	"fmt"
-	"html"
+	"io"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -59,18 +63,18 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 out:
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	tagsNow := strings.Join(article.Tags, ", ")
-	pVersion := *article
-	pVersion.Title = html.EscapeString(pVersion.Title)
-	pVersion.Author = html.EscapeString(pVersion.Author)
-	pVersion.Website = html.EscapeString(pVersion.Website)
-	pVersion.Content = html.EscapeString(pVersion.Content)
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
-		"form":     pVersion,
-		"tagsNow":  tagsNow,
-		"allTags":  getAllTags(),
-		"header":   "Admin Panel",
+		"form": map[string]string{
+			"Title":   html.EscapeString(article.Title),
+			"Author":  html.EscapeString(article.Author),
+			"Website": html.EscapeString(article.Website),
+			"Content": html.EscapeString(article.Src),
+		},
+		"tagsNow": tagsNow,
+		"allTags": getAllTags(),
+		"header":  "Admin Panel",
 	}); err != nil {
 		logger.Println("new:", err.Error())
 	}
@@ -138,10 +142,77 @@ func genArticle(r *http.Request) (*Article, error) {
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
 		Title:      html.EscapeString(r.Form.Get("title")),
-		Content:    r.Form.Get("content"),
+		Src:        r.Form.Get("content"),
+		Content:    process(r.Form.Get("content")),
 		Notif:      r.Form.Get("notify") == "on",
 		Tags:       tagList,
 	}, nil
+}
+
+func process(content string) string {
+	ret := ""
+	t := html.NewTokenizer(strings.NewReader(content))
+	latex := false
+	latexSrc := ""
+L:
+	for {
+		t.Next()
+		token := t.Token()
+		str := html.UnescapeString(token.String())
+		switch token.Type {
+		case html.StartTagToken:
+			if token.Data == "latex" {
+				latex = true
+			}
+		case html.ErrorToken:
+			break L
+		case html.EndTagToken:
+			if token.Data == "latex" {
+				latex = false
+				ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), html.EscapeString(latexSrc))
+			}
+		default:
+			if latex {
+				latexSrc += str
+			} else {
+				ret += str
+			}
+		}
+	}
+	return ret
+}
+
+var latexMutex sync.Mutex
+
+func genLaTeX(src string) string {
+	println(src)
+	cmd := exec.Command("/usr/bin/latex", "-output-directory=/tmp")
+	cmd.Stdin = strings.NewReader(fmt.Sprintf(`
+\documentclass{article}
+\pagestyle{empty}
+
+\begin{document}
+{\huge %s}
+\end{document}`, src))
+	latexMutex.Lock()
+	defer latexMutex.Unlock()
+	if err := cmd.Run(); err != nil {
+		logger.Println("latex:", err.Error())
+		return ""
+	}
+	fileName := getLaTeXFileName(src)
+	println(config["DocumentRoot"] + "static/image/" + fileName)
+	if err := exec.Command("/usr/bin/convert", "-trim", "/tmp/texput.dvi", config["DocumentPath"]+"static/image/"+fileName).Run(); err != nil {
+		logger.Println("latex:", err.Error())
+		return ""
+	}
+	return config["RootUrl"] + "image/" + fileName
+}
+
+func getLaTeXFileName(src string) string {
+	h := md5.New()
+	io.WriteString(h, src)
+	return fmt.Sprintf("%x", h.Sum(nil)) + ".png" // FIXME collision
 }
 
 func checkArticle(a *Article) error {

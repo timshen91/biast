@@ -23,6 +23,7 @@ type Article struct {
 	RemoteAddr string // I'm evil
 	Date       time.Time
 	Website    string
+	Src        string
 	Content    string // RAW html
 	Notif      bool
 	Title      string
