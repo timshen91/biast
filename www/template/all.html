@@ -55,10 +55,10 @@
 		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
 	</div>
 	<div class="article_meta">
-	{{template "_meta" .}}
+	{{template "_meta" .article}}
 	</div>
 	<hr/>
-	{{.Content}}
+	{{.article.Content}}
 </div>
 {{end}}
 
@@ -86,9 +86,9 @@
 Tags:
 </p>
 <p>
-{{$url := .config.TagsUrl}}
+{{$tagUrl := .config.TagsUrl}}
 {{range .article.Tags}}
-	<a href="{{$url}}{{.}}">{{.}}</a>
+	<a href="{{$tagUrl}}{{.}}">{{.}}</a>
 {{end}}
 </p>
 <hr/>
