@@ -1,0 +1,16 @@
+{{define "tags"}}
+{{template "_header" .}}
+<div class="box">
+	<div class="title">
+		<h1>Tags</h1>
+	</div>
+	<hr/>
+	<p>
+	{{$url := .config.TagsUrl}}
+	{{range .tags}}
+		<a href="{{$url}}{{.}}">{{.}}</a>
+	{{end}}
+	</p>
+</div>
+{{template "_footer" .config}}
+{{end}}

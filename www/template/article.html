@@ -1,0 +1,77 @@
+{{define "_meta"}}
+{{if .Website}}
+<a href="{{.Website}}">{{.Author}}</a>
+{{else}}
+{{.Author}}
+{{end}}
+@ {{.Date.String}}
+{{end}}
+
+{{define "_article"}}
+<div name="article-{{.article.Id}}" id="article-{{.article.Id}}" class="box">
+	<div class="title">
+		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
+	</div>
+	<div class="article_meta">
+	{{template "_meta" .article}}
+	</div>
+	<hr/>
+	{{.article.Content}}
+</div>
+{{end}}
+
+{{define "_comment"}}
+<h2>Comments</h2>
+<hr/>
+{{range .}}
+<div class="comment" id="comment-{{.Id}}">
+		<div class="comment_meta">
+		{{template "_meta" .}}
+		<button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn btn-mini" style="float:right">Quote</button>
+		</div>
+		<div id="comment_content-{{.Id}}" class="comment_content">
+		{{.Content}}
+		</div>
+	</div>
+	<hr/>
+{{end}}
+{{end}}
+
+{{define "article"}}
+{{template "_header" .}}
+{{template "_article" .}}
+<p>
+Tags:
+</p>
+<p>
+{{$tagUrl := .config.TagsUrl}}
+{{range .article.Tags}}
+	<a href="{{$tagUrl}}{{.}}">{{.}}</a>
+{{end}}
+</p>
+<hr/>
+{{template "_comment" .comments}}
+<span style="color:red">{{.feedback}}</span>
+<form class="comment_post_form" id="comment_form" method="post">
+	<legend>Post a comment</legend>
+	<p>
+	<label><input name="author" value="{{.cookies.name}}"/>Name</label>
+	</p>
+	<p>
+	<label><input name="email" value=""/>Email(Won't be published)</label>
+	</p>
+	<p>
+	<label><input name="website" value="{{.cookies.website}}"/>Website(Optional)</label>
+	</p>
+	<p>
+		<textarea rows="10" name="content"></textarea>
+	</p>
+	<p>
+		<button type="submit" class="btn btn-primary" name="post">Send</button>
+		<label class="checkbox inline" for="notify">
+			<input type="checkbox" name="notify" checked="checked">Send Email notification when quoted
+		</label>
+	</p>
+</form>
+{{template "_footer" .config}}
+{{end}}
