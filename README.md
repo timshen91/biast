@@ -24,4 +24,6 @@ For quick and fresh frontend develop.
 
 	for LaTeX input support.
 
-## [Our blog](http://stdio.njuptsast.org/)(Chinese)
+## Our blog
+
+[http://stdio.njuptsast.org/](http://stdio.njuptsast.org/)(Chinese)
