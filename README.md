@@ -23,3 +23,5 @@ For quick and fresh frontend develop.
 * [LaTeX](http://www.tug.org/texlive/) & [ImageMagick](http://www.imagemagick.org/) (Optional)
 
 	for LaTeX input support.
+
+## [Our blog](http://stdio.njuptsast.org/)(Chinese)
