@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -197,7 +198,7 @@ L:
 var latexMutex sync.Mutex
 
 func genLaTeX(src string) string {
-	println(src)
+	logger.Println("LaTeX", src)
 	cmd := exec.Command("/usr/bin/latex", "-output-directory=/tmp")
 	cmd.Stdin = strings.NewReader(fmt.Sprintf(`
 \documentclass{article}
@@ -213,10 +214,13 @@ func genLaTeX(src string) string {
 		return ""
 	}
 	fileName := getLaTeXFileName(src)
-	println(config["DocumentRoot"] + "static/image/" + fileName)
-	if err := exec.Command("/usr/bin/convert", "-trim", "/tmp/texput.dvi", config["DocumentPath"]+"static/image/"+fileName).Run(); err != nil {
-		logger.Println("latex:", err.Error())
-		return ""
+	filePath := config["DocumentRoot"] + "static/image/" + fileName
+	logger.Println("LaTeX", filePath)
+	if _, err := os.Stat(filePath); err != nil {
+		if err := exec.Command("/usr/bin/convert", "-trim", "/tmp/texput.dvi", filePath).Run(); err != nil {
+			logger.Println("latex:", err.Error())
+			return ""
+		}
 	}
 	return config["RootUrl"] + "image/" + fileName
 }
