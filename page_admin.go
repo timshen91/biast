@@ -21,15 +21,22 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	old, ok := getOld(r.URL.Path)
 	if r.Method == "POST" {
+		if err := checkArticle(r); err != nil {
+			article = &Article{
+				Title:   r.Form.Get("title"),
+				Author:  r.Form.Get("author"),
+				Website: r.Form.Get("website"),
+				Src:     r.Form.Get("content"),
+				Tags:    genTags(r.Form.Get("tags")),
+			}
+			feedback = "Oops...! " + err.Error()
+			goto out
+		}
 		if temp, err := genArticle(r); err != nil {
 			feedback = "Oops...! " + err.Error()
 			goto out
 		} else {
 			article = temp
-		}
-		if err := checkArticle(article); err != nil {
-			feedback = "Oops...! " + err.Error()
-			goto out
 		}
 		if r.Form.Get("post") == "preview" {
 			w.Header().Set("Content-Type", "text/html; charset=UTF-8")
@@ -63,7 +70,6 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 out:
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
-	tagsNow := strings.Join(article.Tags, ", ")
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
@@ -74,7 +80,7 @@ out:
 			"Content": html.EscapeString(article.Src),
 			"Email":   html.EscapeString(r.Form.Get("email")),
 		},
-		"tagsNow": tagsNow,
+		"tagsNow": strings.Join(article.Tags, ", "),
 		"allTags": getAllTags(),
 		"header":  "Admin Panel",
 	}); err != nil {
@@ -231,11 +237,11 @@ func getLaTeXFileName(src string) string {
 	return fmt.Sprintf("%x", h.Sum(nil)) + ".png" // FIXME collision
 }
 
-func checkArticle(a *Article) error {
-	if a.Author == "" || a.Email == "" || a.Content == "" || a.Title == "" {
+func checkArticle(a *http.Request) error {
+	if a.Form.Get("author") == "" || a.Form.Get("email") == "" || a.Form.Get("content") == "" || a.Form.Get("title") == "" {
 		return errors.New("Name, email, content and title can't be blank.")
 	}
-	if _, ex := adminList[a.Email]; !ex {
+	if _, ex := adminList[a.Form.Get("email")]; !ex {
 		return errors.New("This email address can't be the author.")
 	}
 	return nil
