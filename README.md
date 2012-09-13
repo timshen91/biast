@@ -1,4 +1,4 @@
-## A blog system
+## A blog engine
 
 It's just a practice for our web application experience. We apply exact evil premature optimazation on it.
 
