@@ -169,6 +169,7 @@ L:
 				if token.Data == "latex" {
 					latex = false
 					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(html.EscapeString(latexSrc)), latexSrc)
+					latexSrc = ""
 				} else {
 					latexSrc += str
 				}
