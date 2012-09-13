@@ -168,7 +168,7 @@ L:
 			case html.EndTagToken:
 				if token.Data == "latex" {
 					latex = false
-					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(latexSrc), latexSrc)
+					ret += fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", genLaTeX(html.EscapeString(latexSrc)), latexSrc)
 				} else {
 					latexSrc += str
 				}
