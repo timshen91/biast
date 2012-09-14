@@ -220,7 +220,7 @@ func genLaTeX(src string) string {
 		return ""
 	}
 	fileName := getLaTeXFileName(src)
-	filePath := config["DocumentPath"] + "static/image/" + fileName
+	filePath := config["DocumentPath"] + "static/image/latex" + fileName
 	logger.Println("LaTeX", filePath)
 	if _, err := os.Stat(filePath); err != nil {
 		if err := exec.Command("/usr/bin/convert", "-trim", "/tmp/texput.dvi", filePath).Run(); err != nil {
