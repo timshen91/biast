@@ -23,11 +23,10 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		if err := checkArticle(r); err != nil {
 			article = &Article{
-				Title:   r.Form.Get("title"),
-				Author:  r.Form.Get("author"),
-				Website: r.Form.Get("website"),
-				Src:     r.Form.Get("content"),
-				Tags:    genTags(r.Form.Get("tags")),
+				Title:  r.Form.Get("title"),
+				Author: r.Form.Get("author"),
+				Src:    r.Form.Get("content"),
+				Tags:   genTags(r.Form.Get("tags")),
 			}
 			feedback = "Oops...! " + err.Error()
 			goto out
@@ -74,7 +73,6 @@ out:
 		"form": map[string]string{
 			"Title":   html.EscapeString(article.Title),
 			"Author":  html.EscapeString(article.Author),
-			"Website": html.EscapeString(article.Website),
 			"Content": html.EscapeString(article.Src),
 			"Email":   html.EscapeString(r.Form.Get("email")),
 		},
@@ -150,7 +148,6 @@ func genArticle(r *http.Request) (*Article, error) {
 	return &Article{
 		Author:     html.EscapeString(r.Form.Get("author")),
 		Email:      html.EscapeString(r.Form.Get("email")),
-		Website:    genWebsite(r.Form.Get("website")),
 		RemoteAddr: r.RemoteAddr,
 		Date:       time.Now(),
 		Title:      html.EscapeString(r.Form.Get("title")),
