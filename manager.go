@@ -89,6 +89,7 @@ func initManager() {
 	initArticleList()
 	initCommentList()
 	initPageTags()
+	initPageAuthors()
 }
 
 func initArticleList() {

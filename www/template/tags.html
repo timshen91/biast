@@ -6,9 +6,9 @@
 	</div>
 	<hr/>
 	<p>
-	{{$url := .config.TagsUrl}}
+	{{$top := .}}
 	{{range .tags}}
-		<a href="{{$url}}{{.}}">{{.}}</a>
+		<a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
 	{{end}}
 	</p>
 </div>

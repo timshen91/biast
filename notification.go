@@ -17,7 +17,7 @@ func newCommentNotify(comm *Comment) {
 	if father := getArticle(comm.Father); father.Notif {
 		if father.Author != comm.Author {
 			send(father.Email, "Your article has been commented", fmt.Sprintf(
-`Dear %s, your article on %s has been commented by %s:
+				`Dear %s, your article on %s has been commented by %s:
 	<blockquote>%s</blockquote>
 Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.`, father.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(father.Id)+"#comment-"+fmt.Sprint(comm.Id), notifRegister(getCloseArticleNotif(comm.Father))))
 		}
@@ -27,7 +27,7 @@ Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close th
 		if p := getComment(id); p != nil && p.Notif {
 			if comm.Father == p.Father && comm.Author != p.Author {
 				send(p.Email, "Your comment has been quoted", fmt.Sprintf(
-`Dear %s, your comment on %s has been quoted by %s:
+					`Dear %s, your comment on %s has been quoted by %s:
 	<blockquote>%s</blockquote>
 Click <a href="%s">here</a> for details. Click <a href="%s">here</a> to close the notification.
 `, p.Author, config["ServerName"], comm.Author, comm.Content, config["Domain"]+config["ArticleUrl"]+fmt.Sprint(p.Father)+"#comment-"+fmt.Sprint(comm.Id), notifRegister(getCloseCommentNotif(id))))

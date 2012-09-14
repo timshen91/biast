@@ -59,9 +59,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			article.Id = allocArticleId()
 		}
-		// EventStart: newArticle
 		newArticleAuth(article, old)
-		// EventEnd: newArticle
 		feedback = "Welcome my dear admin! Mail request has been sent, please check your mail."
 	} else {
 		if ok {
@@ -105,16 +103,21 @@ func getOld(url string) (old *Article, ex bool) {
 
 func newArticleAuth(a, old *Article) {
 	url := notifRegister(func(w http.ResponseWriter, r *http.Request) {
+		// EventStart: newArticle
 		if old != nil {
-			go updateTags(a.Id, old.Tags, a.Tags)
+			updateTags(a.Id, old.Tags, a.Tags)
+			updateAuthor(a.Id, old.Author, a.Author)
 		} else {
-			go updateTags(a.Id, nil, a.Tags)
+			updateTags(a.Id, nil, a.Tags)
+			updateAuthor(a.Id, "", a.Author)
 		}
 		setArticle(a)
 		go updateIndexAndFeed()
+		// EventEnd: newArticle
 		http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(a.Id), http.StatusFound)
 	})
-	send(a.Email, "New article authentication", fmt.Sprintf(`<p>Dear %s, you have an article to be authenticated for publishment:
+	send(a.Email, "New article authentication", fmt.Sprintf(
+		`<p>Dear %s, you have an article to be authenticated for publishment:
 <p>
 %s
 </p></p>

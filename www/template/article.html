@@ -1,10 +1,9 @@
-{{define "_meta"}}
+{{define "_comment_meta"}}
 {{if .Website}}
 <a href="{{.Website}}">{{.Author}}</a>
 {{else}}
 {{.Author}}
-{{end}}
-@ {{.Date.String}}
+{{end}} @ {{.Date.String}}
 {{end}}
 
 {{define "_article"}}
@@ -12,9 +11,10 @@
 	<div class="title">
 		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
 	</div>
-	<div class="article_meta">
-	{{template "_meta" .article}}
-	</div>
+		<div class="article_meta">
+			<a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.String}}
+			<p>{{.comments | len}} comments</p>
+		</div>
 	<hr/>
 	{{.article.Content}}
 </div>
@@ -26,7 +26,7 @@
 {{range .}}
 <div class="comment" id="comment-{{.Id}}">
 		<div class="comment_meta">
-		{{template "_meta" .}}
+		{{template "_comment_meta" .}}
 		<button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn btn-mini" style="float:right">Quote</button>
 		</div>
 		<div id="comment_content-{{.Id}}" class="comment_content">
@@ -44,9 +44,9 @@
 Tags:
 </p>
 <p>
-{{$tagUrl := .config.TagsUrl}}
+{{$top := .}}
 {{range .article.Tags}}
-	<a href="{{$tagUrl}}{{.}}">{{.}}</a>
+	<a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
 {{end}}
 </p>
 <hr/>

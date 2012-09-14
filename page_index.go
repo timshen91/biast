@@ -21,9 +21,10 @@ func updateIndexAndFeed() {
 	// index
 	newIndexCache := &bytes.Buffer{}
 	if err := tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
-		"config":   config,
-		"articles": indexList,
-		"header":   config["ServerName"],
+		"config":         config,
+		"articles":       indexList,
+		"getCommentList": getCommentList,
+		"header":         config["ServerName"],
 	}); err != nil {
 		logger.Println("index cache:", err.Error())
 	}

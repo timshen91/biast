@@ -48,9 +48,9 @@
 Tags:
 </p>
 <p>
-{{$url := .config.TagsUrl}}
+{{$top := .}}
 {{range .article.Tags}}
-	<a href="{{$url}}{{.}}">{{.}}</a>
+	<a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
 {{end}}
 </p>
 {{template "_footer" .config}}
