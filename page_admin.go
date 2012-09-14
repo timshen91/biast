@@ -228,7 +228,7 @@ func genLaTeX(src string) string {
 			return ""
 		}
 	}
-	return config["RootUrl"] + "image/" + fileName
+	return config["RootUrl"] + "image/latex/" + fileName
 }
 
 func getLaTeXFileName(src string) string {
