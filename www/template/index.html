@@ -7,7 +7,7 @@
 			<h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
 		</div>
 		<div class="article_meta">
-			{{call $top.getCommentList .Id | len}} comments | 
+			{{getCommentList .Id | len}} comments | 
 			<a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a> @ {{.Date.String}}
 		</div>
 		<hr/>

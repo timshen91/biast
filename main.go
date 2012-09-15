@@ -33,7 +33,7 @@ type Comment struct {
 	Id         cid
 	Author     string
 	Email      string
-	RemoteAddr string // I'm evil
+	RemoteAddr string // again, I'm evil
 	Date       time.Time
 	Website    string
 	Content    string // tags limited
@@ -134,9 +134,12 @@ func init() {
 	// template init and its coroutine
 	go func() {
 		for {
-			t, err := template.ParseGlob(config["DocumentPath"] + "template/" + "*")
+			tt := template.New("").Funcs(map[string]interface{}{
+				"getCommentList": getCommentList,
+			})
+			t, err := tt.ParseGlob(config["DocumentPath"] + "template/" + "*")
 			if err != nil {
-				logger.Println("reparse template failed")
+				logger.Println("reparse template failed:", err.Error())
 			} else {
 				tmpl = t
 				updateIndexAndFeed()

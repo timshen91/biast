@@ -15,10 +15,9 @@ func authorHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	} else {
 		if err := tmpl.ExecuteTemplate(w, "index", map[string]interface{}{
-			"config":         config,
-			"articles":       indexList,
-			"getCommentList": getCommentList,
-			"header":         "Author: " + author,
+			"config":   config,
+			"articles": indexList,
+			"header":   "Author: " + author,
 		}); err != nil {
 			logger.Println("author:", err.Error())
 		}
