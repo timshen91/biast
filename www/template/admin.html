@@ -3,7 +3,7 @@
 <span style="color:red">{{.feedback}}</span>
 <form class="article_post_form" method="post">
 	<legend>Post an article (maintainers only)</legend>
-	<p>(visit {{.config.AdminUrl}}{id} for editing an exist article)</p>
+	<p>(visit {{.config.AdminUrl}}{id} for editing an existing article)</p>
 	<p>use &lt;latex&gt;$\frac{1}{3}$&lt;/latex&gt; for LaTeX support</p>
 	<p>
 		<label><input name="title" value="{{.form.Title}}">Title</label>
@@ -22,7 +22,7 @@
 	<label><input name="tags" id="tag_input" value="{{.tagsNow}}">Tags</label>
 	</p>
 	<p>
-	All exist tags: 
+	All existing tags: 
 	{{range .allTags}}
 		<a href="javascript:void(0)" onclick="addTag('{{.}}')">{{.}}</a>
 	{{end}}
