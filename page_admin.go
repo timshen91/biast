@@ -20,6 +20,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var article = &Article{}
 	r.ParseForm()
 	old, ok := getOld(r.URL.Path)
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	if r.Method == "POST" {
 		if err := checkArticle(r); err != nil {
 			article = &Article{
@@ -38,11 +39,11 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 			article = temp
 		}
 		if r.Form.Get("post") == "preview" {
-			w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 			if err := tmpl.ExecuteTemplate(w, "preview", map[string]interface{}{
-				"config":  config,
-				"article": article,
-				"header":  article.Title + "(Preview)",
+				"config":   config,
+				"article":  article,
+				"comments": make([]int, 0),
+				"header":   article.Title + "(Preview)",
 			}); err != nil {
 				logger.Println("new:", err.Error())
 			}
@@ -66,7 +67,6 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 out:
-	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	if err := tmpl.ExecuteTemplate(w, "new", map[string]interface{}{
 		"config":   config,
 		"feedback": feedback,
