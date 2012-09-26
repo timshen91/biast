@@ -102,6 +102,7 @@ func getOld(url string) (old *Article, ex bool) {
 func newArticleAuth(a, old *Article) {
 	url := notifRegister(func(w http.ResponseWriter, r *http.Request) {
 		// EventStart: newArticle
+		setArticle(a)
 		if old != nil {
 			updateTags(a.Id, old.Tags, a.Tags)
 			updateAuthor(a.Id, old.Author, a.Author)
@@ -109,7 +110,6 @@ func newArticleAuth(a, old *Article) {
 			updateTags(a.Id, nil, a.Tags)
 			updateAuthor(a.Id, "", a.Author)
 		}
-		setArticle(a)
 		go updateIndexAndFeed()
 		// EventEnd: newArticle
 		http.Redirect(w, r, config["ArticleUrl"]+fmt.Sprint(a.Id), http.StatusFound)

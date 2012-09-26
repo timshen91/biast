@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 )
@@ -14,6 +15,9 @@ func authorHandler(w http.ResponseWriter, r *http.Request) {
 	if indexList := getArticleByAuthor(author); indexList == nil {
 		http.NotFound(w, r)
 	} else {
+		for i, j := 0, len(indexList)-1; i < j; i, j = i+1, j-1 {
+			indexList[i], indexList[j] = indexList[j], indexList[i]
+		}
 		if err := tmpl.ExecuteTemplate(w, "index", map[string]interface{}{
 			"config":   config,
 			"articles": indexList,
@@ -42,6 +46,7 @@ func updateAuthor(id aid, old, author string) {
 	authorMutex.Lock()
 	if old != "" {
 		list := author2Articles[old]
+		fmt.Println(list)
 		for i := len(list) - 1; i >= 0; i-- {
 			if list[i] == id {
 				for j := i; j < len(list)-1; j++ {
@@ -51,17 +56,20 @@ func updateAuthor(id aid, old, author string) {
 				break
 			}
 		}
+		fmt.Println(list)
 	}
 	author2Articles[author] = append(author2Articles[author], 0)
 	list := author2Articles[author]
+	fmt.Println(list)
 	for i := len(list) - 2; i >= 0; i-- {
-		if list[i] < id {
+		if list[i] > id {
 			list[i+1] = list[i]
 		} else {
 			list[i+1] = id
 			break
 		}
 	}
+	fmt.Println(list)
 	authorMutex.Unlock()
 }
 
@@ -70,7 +78,7 @@ func initPageAuthors() {
 	http.HandleFunc(config["AuthorUrl"], getGzipHandler(authorHandler))
 	articleList := getArticleList()
 	sortSlice(articleList, func(a, b interface{}) bool {
-		return a.(*Article).Id > b.(*Article).Id
+		return a.(*Article).Id < b.(*Article).Id
 	})
 	for _, article := range articleList {
 		author2Articles[article.Author] = append(author2Articles[article.Author], article.Id)
