@@ -82,6 +82,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		"config":   config,
 		"article":  p,
 		"comments": getCommentList(p.Id),
+		"form":     r.Form.Get("content"),
 		"cookies":  cookies,
 		"feedback": feedback,
 		"header":   p.Title,
