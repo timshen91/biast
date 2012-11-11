@@ -56,19 +56,21 @@ func updateAuthor(id aid, old, author string) {
 				break
 			}
 		}
+		author2Articles[old] = list
 		fmt.Println(list)
 	}
 	author2Articles[author] = append(author2Articles[author], 0)
 	list := author2Articles[author]
 	fmt.Println(list)
-	for i := len(list) - 2; i >= 0; i-- {
+	var i int
+	for i = len(list) - 2; i >= 0; i-- {
 		if list[i] > id {
 			list[i+1] = list[i]
 		} else {
-			list[i+1] = id
 			break
 		}
 	}
+	list[i+1] = id
 	fmt.Println(list)
 	authorMutex.Unlock()
 }
