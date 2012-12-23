@@ -1,16 +1,17 @@
 {{define "_header"}}<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap.min.css"/>
-		<link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap-responsive.css"/>
-		<link rel="stylesheet" href="{{.config.RootUrl}}css/style.css"/>
-		<link rel="alternate" type="application/rss+xml" href="/feed">
-		<title>{{.header}}</title>
-	</head>
-	<body>
-		<div class="navbar navbar-inner">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" href="{{.config.RootUrl}}css/style.css"/>
+    <link rel="alternate" type="application/rss+xml" href="/feed">
+    <title>{{.header}}</title>
+    {{template "_google_analytics" .}}
+  </head>
+  <body>
+    <div class="navbar navbar-inner">
       <div class="container">
         <ul class="nav">
           <li><a href="{{.config.RootUrl}}">Home</a></li>
@@ -19,13 +20,13 @@
           <li><a href="{{.config.RootUrl}}about">About</a></li>
         </ul>
       </div>
-		</div>
-		<div class="container">
-			<div class="banner">
-				<a href="{{.config.RootUrl}}">
+    </div>
+    <div class="container">
+      <div class="banner">
+        <a href="{{.config.RootUrl}}">
           <img src="{{.config.RootUrl}}image/SastLogo.png">
-				</a>
-			</div>
-		</div>
-		<div class="container">
-{{end}}
+        </a>
+      </div>
+    </div>
+    <div class="container">
+      {{end}}
