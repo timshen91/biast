@@ -17,6 +17,13 @@
 	padding: 5%;
 }
 
+.aboutbox {
+	border: 1px solid white;
+	box-shadow: 0 1px 10px #58B1B9;
+	margin: 10px auto;
+	padding: 10px;
+}
+
 p {
 	line-height: 1.8em;
 }
@@ -56,4 +63,5 @@ textarea {
 
 .footer {
 	text-align: center;
+  color: #555;
 }
