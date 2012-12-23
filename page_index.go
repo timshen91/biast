@@ -18,6 +18,11 @@ func updateIndexAndFeed() {
 	sortSlice(indexList, func(a, b interface{}) bool {
 		return a.(*Article).Id > b.(*Article).Id
 	})
+	for i, _ := range indexList {
+		temp := *indexList[i]
+		temp.Content = makeSummary(temp.Content)
+		indexList[i] = &temp
+	}
 	// index
 	newIndexCache := &bytes.Buffer{}
 	if err := tmpl.ExecuteTemplate(newIndexCache, "index", map[string]interface{}{
@@ -88,4 +93,24 @@ func getGzipHandler(f http.HandlerFunc) http.HandlerFunc {
 			io.Writer:           gw,
 		}, r)
 	}
+}
+
+func makeSummary(s string) string {
+	min := 0
+	for min < 600 && s[min:] != "" {
+		if idx := strings.Index(s[min:], "</p>"); idx != -1 {
+			min += idx + len("</p>")
+			continue
+		}
+		if idx := strings.Index(s[min:], "<br/>"); idx != -1 {
+			min += idx + len("<br/>")
+			continue
+		}
+		if idx := strings.Index(s[min:], "<br>"); idx != -1 {
+			min += idx + len("<br>")
+			continue
+		}
+		min = len(s)
+	}
+	return s[:min]
 }
