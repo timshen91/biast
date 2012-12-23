@@ -11,17 +11,19 @@
 	</head>
 	<body>
 		<div class="navbar navbar-inner">
-			<ul class="nav">
-				<li><a href="{{.config.RootUrl}}">Home</a></li>
-				<li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
-				<li><a href="{{.config.AdminUrl}}">Contribute</a></li>
-				<li><a href="{{.config.RootUrl}}about">About</a></li>
-			</ul>
+      <div class="container">
+        <ul class="nav">
+          <li><a href="{{.config.RootUrl}}">Home</a></li>
+          <li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
+          <li><a href="{{.config.AdminUrl}}">Contribute</a></li>
+          <li><a href="{{.config.RootUrl}}about">About</a></li>
+        </ul>
+      </div>
 		</div>
 		<div class="container">
 			<div class="banner">
 				<a href="{{.config.RootUrl}}">
-					<h1>Biast</h1>
+          <img src="{{.config.RootUrl}}image/SastLogo.png">
 				</a>
 			</div>
 		</div>
