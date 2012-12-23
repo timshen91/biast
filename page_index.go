@@ -112,5 +112,8 @@ func makeSummary(s string) string {
 		}
 		min = len(s)
 	}
+	if min != len(s) {
+		return s[:min] + "<br/>...<br/>"
+	}
 	return s[:min]
 }
