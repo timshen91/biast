@@ -7,71 +7,87 @@
 {{end}}
 
 {{define "_article"}}
-<div name="article-{{.article.Id}}" id="article-{{.article.Id}}" class="box">
-	<div class="title">
-		<h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
-	</div>
-		<div class="article_meta">
-			{{.comments | len}} comments | 
-			<a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.String}}
-		</div>
-	<hr/>
-	{{.article.Content}}
+<div class="entry" name="article-{{.article.Id}}" id="article-{{.article.Id}}">
+  <div class="entry-title">
+    <h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
+  </div>
+  <div class="entry-meta">
+    {{.comments | len}} <a href="{{.config.ArticleUrl}}{{.article.Id}}#comment">comments</a> | 
+    <a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.String}}
+  </div>
+  <hr />
+  {{.article.Content}}
+</div>
+{{end}}
+
+
+{{define "_tag"}}
+<div class="entry-tag" id="tag">
+  <h2>TAGS</h2>
+  <hr />
+  <p>
+  {{$top := .}}
+  {{range .article.Tags}}
+  <a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
+  {{end}}
+  </p>
+  <hr />
 </div>
 {{end}}
 
 {{define "_comment"}}
-<h2>Comments</h2>
-<hr/>
-{{range .}}
-<div class="comment" id="comment-{{.Id}}">
-		<div class="comment_meta">
-		{{template "_comment_meta" .}}
-		<button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn btn-mini" style="float:right">Quote</button>
-		</div>
-		<div id="comment_content-{{.Id}}" class="comment_content">
-		{{.Content}}
-		</div>
-	</div>
-	<hr/>
+<div class="entry-comment" id="comment">
+  <h2>COMMENTS</h2>
+  <hr />
+  {{range .}}
+  <div id="comment-{{.Id}}">
+    <div class="comment-meta">
+      {{template "_comment_meta" .}}
+      <button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn btn-mini" style="float:right">Quote</button>
+    </div>
+    <div id="comment-content-{{.Id}}">
+      {{.Content}}
+    </div>
+  </div>
+  <hr />
+  {{end}}
+</div>
 {{end}}
+
+
+{{define "_comment_post_form"}}
+<div class="entry-comment-post" id="comment-post">
+  <h2>LEAVE A COMMENT</h2>
+  <hr />
+  <form class="entry-comment-post-form" id="comment-form" method="post">
+    <p>
+    <label><input name="author" value="{{.cookies.name}}"/> Name</label>
+    </p>
+    <p>
+    <label><input name="email" value=""/> Email (Won't be published)</label>
+    </p>
+    <p>
+    <!--<label><input name="website" value="{{.cookies.website}}"/>Website(Optional)</label>-->
+    </p>
+    <p>
+    <textarea rows="10" cols="80" name="content">{{.form}}</textarea>
+    </p>
+    <p>
+    <button type="submit" class="btn btn-primary" name="post">Send</button>
+    <label class="checkbox inline" for="notify">
+      <input type="checkbox" name="notify" checked="checked">Send Email notification when quoted
+    </label>
+    </p>
+  </form>
+</div>
+</div>
 {{end}}
 
 {{define "article"}}
 {{template "_header" .}}
 {{template "_article" .}}
-<p>
-Tags:
-</p>
-<p>
-{{$top := .}}
-{{range .article.Tags}}
-	<a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
-{{end}}
-</p>
-<hr/>
+{{template "_tag" .}}
 {{template "_comment" .comments}}
-<span style="color:red">{{.feedback}}</span>
-<form class="comment_post_form" id="comment_form" method="post">
-	<legend>Post a comment</legend>
-	<p>
-	<label><input name="author" value="{{.cookies.name}}"/>Name</label>
-	</p>
-	<p>
-	<label><input name="email" value=""/>Email(Won't be published)</label>
-	</p>
-	<p>
-	<!--<label><input name="website" value="{{.cookies.website}}"/>Website(Optional)</label>-->
-	</p>
-	<p>
-	<textarea rows="10" name="content">{{.form}}</textarea>
-	</p>
-	<p>
-		<button type="submit" class="btn btn-primary" name="post">Send</button>
-		<label class="checkbox inline" for="notify">
-			<input type="checkbox" name="notify" checked="checked">Send Email notification when quoted
-		</label>
-	</p>
-</form>
+{{template "_comment_post_form" .}}
 {{template "_footer" .config}}
 {{end}}

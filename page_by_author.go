@@ -18,13 +18,13 @@ func authorHandler(w http.ResponseWriter, r *http.Request) {
 		for i, j := 0, len(indexList)-1; i < j; i, j = i+1, j-1 {
 			indexList[i], indexList[j] = indexList[j], indexList[i]
 		}
-		if err := tmpl.ExecuteTemplate(w, "index", map[string]interface{}{
+		if err := tmpl.ExecuteTemplate(w, "author", map[string]interface{}{
 			"config":   config,
 			"articles": indexList,
 			"header":   "Author: " + author,
 		}); err != nil {
 			logger.Println("author:", err.Error())
-		}
+        }
 	}
 }
 

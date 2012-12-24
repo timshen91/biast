@@ -1,40 +1,51 @@
 {{define "new"}}
 {{template "_header" .}}
-<span style="color:red">{{.feedback}}</span>
-<form class="article_post_form" method="post">
-	<legend>Post an article (maintainers only)</legend>
-	<p>(visit {{.config.AdminUrl}}{id} for editing an existing article)</p>
-	<p>use &lt;latex&gt;$\frac{1}{3}$&lt;/latex&gt; for LaTeX support</p>
-	<p>
-		<label><input name="title" value="{{.form.Title}}">Title</label>
-	</p>
-	<p>
-		<label><input name="author" value="{{.form.Author}}">Name</label>
-	</p>
-	<p>
-	<label><input name="email" value="{{.form.Email}}"/>Email(Won't be published)</label>
-	</p>
-	<p>
-		<label>Content (RAW HTML, please)</label>
-		<textarea rows="10" name="content">{{.form.Content}}</textarea>
-	</p>
-	<p>
-	<label><input name="tags" id="tag_input" value="{{.tagsNow}}">Tags</label>
-	</p>
-	<p>
-	All existing tags: 
-	{{range .allTags}}
-		<a href="javascript:void(0)" onclick="addTag('{{.}}')">{{.}}</a>
-	{{end}}
-	</p>
-	<p>
-		<button type="submit" class="btn" name="post" value="preview" onclick="document.forms[0].target = '_blank';">Preview</button>
-		<button type="submit" class="btn btn-primary" name="post" value="submit" onclick="document.forms[0].target = '';">Submit</button>
-		<label class="checkbox inline" for="notify">
-			<input type="checkbox" name="notify" checked="checked">Send Email notification when commented
-		</label>
-	</p>
-</form>
+<div class="feedback">
+  {{.feedback}}
+</div>
+<div class="entry">
+  <form class="article-post-form" method="post">
+    <h1>POST AN ARTICLE (maintainers only)</h1>
+    <hr />
+    <blockquote>
+      (visit {{.config.AdminUrl}}{id} for editing an existing article)<br />
+      use &lt;latex&gt;$\frac{1}{3}$&lt;/latex&gt; for LaTeX support</p>
+    </blockquote>
+    <hr />
+    <p>
+    <label><input name="title" value="{{.form.Title}}"> Title</label>
+    </p>
+    <p>
+    <label><input name="author" value="{{.form.Author}}"> Name</label>
+    </p>
+    <p>
+    <label><input name="email" value="{{.form.Email}}"/> Email (Won't be published)</label>
+    </p>
+    <p>
+    <label>Content (RAW HTML, please)</label><br />
+    <textarea rows="10" cols="80" name="content">{{.form.Content}}</textarea>
+    </p>
+    <p>
+    <label><input name="tags" id="tag-input" value="{{.tagsNow}}"> Tags</label>
+    </p>
+    <hr />
+    <blockquote>
+      All existing tags: 
+      {{range .allTags}}
+      <a href="javascript:void(0)" onclick="addTag('{{.}}')">{{.}}</a>
+      {{end}}
+    </blockquote>
+    <hr />
+    </p>
+    <p>
+    <button type="submit" class="btn" name="post" value="preview" onclick="document.forms[0].target = '_blank';">Preview</button>
+    <button type="submit" class="btn btn-primary" name="post" value="submit" onclick="document.forms[0].target = '';">Submit</button>
+    <label class="checkbox inline" for="notify">
+      <input type="checkbox" name="notify" checked="checked">Send Email notification when commented
+    </label>
+    </p>
+  </form>
+</div>
 {{template "_footer" .config}}
 {{end}}
 
@@ -47,7 +58,7 @@ Tags:
 <p>
 {{$top := .}}
 {{range .article.Tags}}
-	<a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
+<a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
 {{end}}
 </p>
 {{template "_footer" .config}}

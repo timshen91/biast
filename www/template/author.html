@@ -1,0 +1,19 @@
+{{define "author"}}
+{{template "_header" .}}
+{{$top := .}}
+<div class="author-info">
+</div>
+{{range .articles}}
+<div class="entry-list">
+  <hr/>
+  <div class="entry-title" id="article-{{.Id}}">
+    <h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
+  </div>
+  <div class="entry-meta">
+    {{getCommentList .Id | len}} <a href="{{$top.config.ArticleUrl}}{{.Id}}#comment">comments</a> | 
+    <a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a> @ {{.Date.String}}
+  </div>
+</div>
+{{end}}
+{{template "_footer" .config}}
+{{end}}
