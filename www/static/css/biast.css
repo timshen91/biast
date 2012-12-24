@@ -172,8 +172,8 @@ hr.end {
 }
 
 .container {
-  max-width: 700px;
-  *width: 700px;
+  max-width: 660px;
+  *width: 660px;
   margin: 0 auto;
 }
 
@@ -198,8 +198,8 @@ hr.end {
 
 #nav {
   position: relative;
-  max-width: 700px;
-  *width: 700px;
+  max-width: 660px;
+  *width: 660px;
   height: 56px;
   margin: 0 auto;
   background: #f4f4f4;
@@ -216,15 +216,15 @@ hr.end {
 .items a {
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
-  margin-right: 6px;
+  margin-right: 4px;
   line-height: 56px;
-  border-bottom: 0 none;
+  border: 4px solid #F4F4F4;
 }
 
 #nav .items a:hover {
   color: white;
   background: #87D4DB;
-  border: 6px solid #87D4DB;
+  border: 4px solid #87D4DB;
   margin-top: -6px;
 }
 
@@ -246,8 +246,8 @@ hr.end {
 
 #footer {
   padding: 20px;
-  max-width: 700px;
-  *width: 700px;
+  max-width: 660px;
+  *width: 660px;
   margin: 0 auto 30px;
   text-align: left;
 }
