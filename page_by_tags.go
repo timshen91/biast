@@ -19,7 +19,7 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 			logger.Println("tags:", err.Error())
 		}
 	} else {
-		if err := tmpl.ExecuteTemplate(w, "index", map[string]interface{}{
+		if err := tmpl.ExecuteTemplate(w, "result", map[string]interface{}{
 			"config":   config,
 			"articles": indexList,
 			"header":   "Tag: " + tag,

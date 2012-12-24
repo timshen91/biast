@@ -222,8 +222,9 @@ hr.end {
 }
 
 #nav .items a:hover {
-  color: #d00;
-  border-top: 6px solid #58B1B9;
+  color: white;
+  background: #87D4DB;
+  border: 6px solid #87D4DB;
   margin-top: -6px;
 }
 
