@@ -3,31 +3,28 @@
   <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="{{.config.RootUrl}}css/bootstrap-responsive.css"/>
-    <link rel="stylesheet" href="{{.config.RootUrl}}css/style.css"/>
+    <link rel="stylesheet" href="{{.config.RootUrl}}css/biast.css"/>
+    <script src="{{.config.RootUrl}}js/biast.js"></script>
     <link rel="alternate" type="application/rss+xml" href="/feed">
     <title>{{.header}}</title>
 
     {{template "_google_analytics" .}}
   </head>
   <body>
-    <div class="navbar navbar-inner">
-      <div class="container">
-        <ul class="nav">
-          <li><a href="{{.config.RootUrl}}">Home</a></li>
-          <li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
-          <li><a href="{{.config.AdminUrl}}">Contribute</a></li>
-          <li><a href="{{.config.RootUrl}}about">About</a></li>
-        </ul>
-      </div>
+    <header id="header">
+    <nav id="nav" role="navigation">
+
+    <div class="logo">
+      <a href="{{.config.RootUrl}}"><img src="http://stdio.njuptsast.org/image/SastLogo.png"></a>
     </div>
-    <div class="container">
-      <div class="banner">
-        <a href="{{.config.RootUrl}}">
-          <img src="{{.config.RootUrl}}image/SastLogo.png">
-        </a>
-      </div>
+    <div class="items">
+      <a href="{{.config.RootUrl}}">Home</a>
+      <a href="{{.config.TagsUrl}}">Tags Cloud</a>
+      <a href="{{.config.AdminUrl}}">Contribute</a>
+      <a href="{{.config.RootUrl}}about">About</a>
     </div>
+    </nav>
+    </header>
+
     <div class="container">
       {{end}}

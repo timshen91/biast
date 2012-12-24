@@ -2,12 +2,12 @@
 {{template "_header" .}}
 {{$top := .}}
 {{range .articles}}
-	<div name="article-{{.Id}}" id="article-{{.Id}}" class="box">
-		<div class="title">
+	<div class="entry" name="article-{{.Id}}" id="article-{{.Id}}">
+		<div class="entry-title">
 			<h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
 		</div>
-		<div class="article_meta">
-			{{getCommentList .Id | len}} comments | 
+		<div class="entry-meta">
+      {{getCommentList .Id | len}} <a href="{{$top.config.ArticleUrl}}{{.Id}}#comment">comments</a> | 
 			<a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a> @ {{.Date.String}}
 		</div>
 		<hr/>

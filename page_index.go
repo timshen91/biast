@@ -31,7 +31,7 @@ func updateIndexAndFeed() {
 		"header":   config["ServerName"],
 	}); err != nil {
 		logger.Println("index cache:", err.Error())
-	}
+    }
 	indexCache = newIndexCache
 	newFeedCache := &bytes.Buffer{}
 	if err := tmpl.ExecuteTemplate(newFeedCache, "feed", map[string]interface{}{
