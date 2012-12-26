@@ -131,6 +131,7 @@ func init() {
 	initPageArticle()
 	initPageAbout()
 	initNotification()
+    initSessionMgr()
 	// template init and its coroutine
 	go func() {
 		for {

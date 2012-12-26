@@ -86,6 +86,7 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		"cookies":  cookies,
 		"feedback": feedback,
 		"header":   p.Title,
+        "code": genVerifiCode(sid),
 	}); err != nil {
 		logger.Println(r.RemoteAddr + err.Error())
 	}
@@ -201,8 +202,8 @@ func getCookie(key string, r *http.Request) (string, error) {
 }
 
 func genWebsite(url string) string {
-	if url != "" && !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
-		return "http://" + url
-	}
-	return url
+    if url != "" && !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+    return "http://" + url
+}
+return url
 }
