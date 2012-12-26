@@ -6,10 +6,6 @@ It's just a practice for our web application experience. We apply exact evil pre
 
 [Go](http://golang.org) is a young but well-designed language. There's not many new concepts in it, but the best.
 
-## Twitter Bootstrap
-
-For quick and fresh frontend develop.
-
 ## Dependency
 
 * [Go hg](http://https://code.google.com/p/go/)
