@@ -76,9 +76,9 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
         "config":   config,
         "feedback": feedback,
         "form": map[string]string{
-            "Title":   html.EscapeString(article.Title),
-            "Author":  html.EscapeString(article.Author),
-            "Content": html.EscapeString(article.Src),
+            "Title":   html.EscapeString(r.Form.Get("title")),
+            "Author":  html.EscapeString(r.Form.Get("author")),
+            "Content": html.EscapeString(r.Form.Get("content")),
             "Email":   html.EscapeString(r.Form.Get("email")),
         },
         "tagsNow": strings.Join(article.Tags, ", "),

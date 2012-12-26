@@ -68,7 +68,7 @@
     <label><input name="author" value="{{.cookies.name}}"/> Name</label>
     </p>
     <p>
-    <label><input name="email" value=""/> Email (Won't be published)</label>
+    <label><input name="email" value="{{.form.email}}"/> Email (Won't be published)</label>
     </p>
     <p>
     <label><input name="website" value="{{.cookies.website}}"/> Website(Optional)</label>
@@ -77,7 +77,7 @@
     <label><input name="verification" value=""/> {{.code}}</label>
     </p>
     <p>
-    <textarea rows="10" cols="80" name="content">{{.form}}</textarea>
+    <textarea rows="10" cols="80" name="content">{{.form.content}}</textarea>
     </p>
     <p>
     <button type="submit" class="btn btn-primary" name="post">Send</button>

@@ -40,7 +40,7 @@ func genVerifiCode(w http.ResponseWriter) (string) {
     io.WriteString(hret, retstr + config["Salt"])
     retstrMd5 := fmt.Sprintf("%x", hret.Sum(nil))
 
-    setCookie("verification", retstrMd5, 300, w)
+    setCookie("verification", retstrMd5, 3000, w)
     return code
 }
 

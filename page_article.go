@@ -71,7 +71,6 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "text/html; charset=UTF-8")
     cookies := map[string]string{
         "name":    "",
-        // "email":   "",
         "website": "",
     }
     if c, err := getCookie("name", r); err == nil {
@@ -84,7 +83,10 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
         "config":   config,
         "article":  p,
         "comments": getCommentList(p.Id),
-        "form":     r.Form.Get("content"),
+        "form":     map[string]string {
+            "email": html.EscapeString(r.Form.Get("email")),
+            "content": html.EscapeString(r.Form.Get("content")),
+        },
         "cookies":  cookies,
         "feedback": feedback,
         "header":   p.Title,
