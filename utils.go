@@ -6,12 +6,10 @@ import (
 	"net/url"
 )
 
-func setCookie(key, value, path, domain string, maxage int, w http.ResponseWriter) {
+func setCookie(key, value string, maxage int, w http.ResponseWriter) {
     c := &http.Cookie{
         Name:   key,
         Value:  url.QueryEscape(value),
-        Path:   path,
-        Domain: domain,
         MaxAge: maxage,
     }
     http.SetCookie(w, c)

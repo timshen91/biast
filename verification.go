@@ -29,7 +29,7 @@ func genVerifiCode(w http.ResponseWriter) (string) {
         code = strconv.Itoa(numa) + " - " + strconv.Itoa(numb)
         ret = numa - numb
 
-        case 2: // plus
+        case 2: // multiply
         code = strconv.Itoa(numa) + " * " + strconv.Itoa(numb)
         ret = numa * numb
     }
@@ -40,14 +40,14 @@ func genVerifiCode(w http.ResponseWriter) (string) {
     io.WriteString(hret, retstr + salt)
     retstrMd5 := fmt.Sprintf("%x", hret.Sum(nil))
 
-    setCookie("vcode", retstrMd5, config["RootUrl"], config["Domain"], 300, w)
+    setCookie("verification", retstrMd5, 300, w)
     return code
 }
 
 func checkVerifiCode(a *http.Request) (bool) {
     var cret string
     var err error
-    if cret, err = getCookie("vcode", a); err != nil {
+    if cret, err = getCookie("verification", a); err != nil {
         return false
     }
 

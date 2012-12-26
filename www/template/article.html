@@ -56,12 +56,13 @@
 
 
 {{define "_comment_post_form"}}
-<div class="feedback">
-  {{.feedback}}
-</div>
 <div class="entry-comment-post" id="comment-post">
   <h2>LEAVE A COMMENT</h2>
   <hr />
+  <div class="feedback">
+    {{.feedback}}
+  <hr />
+  </div>
   <form class="entry-comment-post-form" id="comment-form" method="post">
     <p>
     <label><input name="author" value="{{.cookies.name}}"/> Name</label>
@@ -70,7 +71,7 @@
     <label><input name="email" value=""/> Email (Won't be published)</label>
     </p>
     <p>
-    <label><input name="website" value="{{.cookies.website}}"/>Website(Optional)</label>
+    <label><input name="website" value="{{.cookies.website}}"/> Website(Optional)</label>
     </p>
     <p>
     <label><input name="verification" value=""/> {{.code}}</label>

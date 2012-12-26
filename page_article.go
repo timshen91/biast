@@ -46,15 +46,17 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 		return
     }
     var feedback string
+    r.ParseForm()
     if r.Method == "POST" {
-        if ok := checkVerifiCode(r); ok != true {
+        if ok := checkVerifiCode(r); ok == false {
+            logger.Println("Oops")
             feedback = "Oops...! " + "Verification code error"
         } else {
             comm, err := genComment(r, id)
             if err == nil {
-                setCookie("name", comm.Author, config["RootUrl"], config["Domain"], 1<<31 - 1, w)
-                setCookie("email", comm.Email, config["RootUrl"], config["Domain"], 1<<31 - 1, w)
-                setCookie("website", comm.Website, config["RootUrl"], config["Domain"], 1<<31 - 1, w)
+                setCookie("name", comm.Author, 1<<31 - 1, w)
+                setCookie("website", comm.Website, 1<<31 - 1, w)
+
                 // EventStart: newComment
                 appendComment(comm)
                 go newCommentNotify(comm)
@@ -69,14 +71,11 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "text/html; charset=UTF-8")
     cookies := map[string]string{
         "name":    "",
-        "email":   "",
+        // "email":   "",
         "website": "",
     }
     if c, err := getCookie("name", r); err == nil {
         cookies["name"] = c
-    }
-    if c, err := getCookie("email", r); err == nil {
-        cookies["email"] = c
     }
     if c, err := getCookie("website", r); err == nil {
         cookies["website"] = c
@@ -96,7 +95,6 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func genComment(r *http.Request, fid aid) (*Comment, error) {
-    r.ParseForm()
     if !checkKeyExist(r.Form, "author", "email", "content") {
         return nil, errors.New("Required field not found.")
     }

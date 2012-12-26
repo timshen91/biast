@@ -22,7 +22,7 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
     old, ok := getOld(r.URL.Path)
     w.Header().Set("Content-Type", "text/html; charset=UTF-8")
     if r.Method == "POST" {
-        if ok := checkVerifiCode(r); ok != true {
+        if ok := checkVerifiCode(r); ok == false {
             feedback = "Oops...! " + "Verification code error"
             goto out
         }
