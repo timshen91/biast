@@ -89,7 +89,7 @@ func init() {
 			config[strings.TrimSpace(line[:pos])] = strings.TrimSpace(line[pos+1:])
 		}
 	}
-	if !checkKeyExist(config, "Domain", "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminList", "DbAddr", "DbPass", "DbId") {
+	if !checkKeyExist(config, "Salt", "Domain", "ServerName", "ServerAddr", "DocumentPath", "RootUrl", "AdminList", "DbAddr", "DbPass", "DbId") {
 		panic("required config not exist")
 	}
 	if config["Domain"][len(config["Domain"])-1] == '/' {

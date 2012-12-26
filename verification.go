@@ -37,7 +37,7 @@ func genVerifiCode(w http.ResponseWriter) (string) {
 
     retstr := strconv.Itoa(ret)
     hret := md5.New()
-    io.WriteString(hret, retstr + salt)
+    io.WriteString(hret, retstr + config["Salt"])
     retstrMd5 := fmt.Sprintf("%x", hret.Sum(nil))
 
     setCookie("verification", retstrMd5, 300, w)
@@ -53,7 +53,7 @@ func checkVerifiCode(a *http.Request) (bool) {
 
     ans := strings.TrimSpace(a.Form.Get("verification"))
     hans := md5.New()
-    io.WriteString(hans, ans + salt)
+    io.WriteString(hans, ans + config["Salt"])
     ansMd5 := fmt.Sprintf("%x", hans.Sum(nil))
 
     if ansMd5 == cret {
