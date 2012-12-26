@@ -21,12 +21,6 @@ func newArticleHandler(w http.ResponseWriter, r *http.Request) {
     r.ParseForm()
     old, ok := getOld(r.URL.Path)
     w.Header().Set("Content-Type", "text/html; charset=UTF-8")
-
-    id := "test" // verification code generation
-    h := md5.New()
-    io.WriteString(h, id)
-    sid := fmt.Sprintf("%x", h.Sum(nil))
-
     if r.Method == "POST" {
         if ok := checkVerifiCode(r); ok != true {
             feedback = "Oops...! " + "Verification code error"
