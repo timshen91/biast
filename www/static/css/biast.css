@@ -53,24 +53,22 @@ li ul {
   height: 56px;
   margin: 0 auto;
   background: #f4f4f4;
-  z-index: 9;
+  line-height: 56px;
 }
 
 #nav .logo {
   width: 150px;
   float: left;
   background: #F4F4F4;
-  margin-right: 10px;
 }
 
-.items {
+#nav .items {
   float: left;
 }
-.items a {
+
+#nav .items a {
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
-  margin-right: 4px;
-  line-height: 56px;
   border: 4px solid #F4F4F4;
 }
 
@@ -78,21 +76,14 @@ li ul {
   color: white;
   background: #87D4DB;
   border: 4px solid #87D4DB;
-  margin-top: -6px;
-}
-
-#nav select {
-  margin-top: 8px;
-  font-size: 16px;
 }
 
 #nav .search {
   float: right;
-  right: 0;
-  line-height: 56px;
+  padding-top: 12px;
 }
 
-#nav input {
+#nav .search input {
   color: gray;
 }
 
