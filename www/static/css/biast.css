@@ -172,8 +172,8 @@ hr.end {
 }
 
 .container {
-  max-width: 660px;
-  *width: 660px;
+  max-width: 900px;
+  *width: 900px;
   margin: 0 auto;
 }
 
@@ -198,8 +198,8 @@ hr.end {
 
 #nav {
   position: relative;
-  max-width: 660px;
-  *width: 660px;
+  max-width: 900px;
+  *width: 900px;
   height: 56px;
   margin: 0 auto;
   background: #f4f4f4;
@@ -213,6 +213,9 @@ hr.end {
   margin-right: 10px;
 }
 
+.items {
+  float: left;
+}
 .items a {
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
@@ -233,6 +236,12 @@ hr.end {
   font-size: 16px;
 }
 
+.search {
+  float: right;
+  right: 0;
+  line-height: 56px;
+}
+
 @media (max-width: 480px) {
   #brand a {
     color: rgba(0,0,0,0.8);
@@ -246,28 +255,29 @@ hr.end {
 
 #footer {
   padding: 20px;
-  max-width: 660px;
-  *width: 660px;
+  max-width: 900px;
+  *width: 900px;
   margin: 0 auto 30px;
   text-align: left;
-}
-
-#footer a {
-  margin: 0;
-}
-
-#footer .copyright {
-  margin: 0;
   color: #ccc;
   font-size: 14px;
 }
 
-#footer .copyright a {
+#footer a {
+  margin: 0;
   color: #bbb;
 }
 
-#footer .copyright a:hover {
+#footer a:hover {
   color: #58B1B9;
+}
+
+#footer .copyright {
+  float: left;
+}
+
+#footer .information {
+  float: right;
 }
 
 /* article */
@@ -275,6 +285,16 @@ hr.end {
   overflow: hidden;
   font-family: 'Rosario', 'Xin Gothic', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Arial, sans-serif;
   border: 1px solid #58B1B9;
+  box-shadow: 2px 2px 10px 2px #58B1B9;
+  margin: 40px auto;
+  padding: 20px 20px 20px 20px;
+}
+
+.entry-article {
+  overflow: hidden;
+  font-family: 'Rosario', 'Xin Gothic', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Arial, sans-serif;
+  border-top: 1px solid #58B1B9;
+  border-bottom: 1px solid #58B1B9;
   box-shadow: 2px 2px 10px 2px #58B1B9;
   margin: 40px auto;
   padding: 20px 20px 20px 20px;

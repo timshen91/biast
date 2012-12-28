@@ -2,7 +2,7 @@
 {{template "_header" .}}
 {{$top := .}}
 {{range .articles}}
-	<div class="entry" name="article-{{.Id}}" id="article-{{.Id}}">
+	<div class="entry-article" name="article-{{.Id}}" id="article-{{.Id}}">
 		<div class="entry-title">
 			<h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
 		</div>
