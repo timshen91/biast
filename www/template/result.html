@@ -6,10 +6,10 @@
   {{$top := .}}
   {{range .articles}}
   <div class="entry-list">
-    <div class="entry-title" id="article-{{.Id}}">
+    <div class="article-title" id="article-{{.Id}}">
       <h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
     </div>
-    <div class="entry-meta">
+    <div class="article-meta">
       {{getCommentList .Id | len}} <a href="{{$top.config.ArticleUrl}}{{.Id}}#comment">comments</a> | 
       <a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a> @ {{.Date.Format "2006-01-02"}}
     </div>

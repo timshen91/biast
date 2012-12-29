@@ -60,6 +60,7 @@ li ul {
 }
 
 #nav .items a {
+  color: #349CFF;
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
   border-left: 1px solid #CCC;
@@ -117,7 +118,7 @@ img {
 }
 
 a {
-  color: #000;
+  color: #349CFF;
   text-decoration: none;
   overflow: hidden;
   word-wrap: break-word;
@@ -245,7 +246,7 @@ textarea:focus, input:focus {
 }
 
 .back-to-top {
-  left: 1150px;
+  left: 1200px;
   position: fixed;
   bottom: 0px;
   display: block;
@@ -291,17 +292,16 @@ textarea:focus, input:focus {
   font-size: 16px;
 }
 
-.entry-title {
-  color: #222;
+.article-title a {
+  color: #444;
 }
 
-.entry-meta, .entry-meta a {
-  color: #999;
-  font-size: 14px;
+.article-meta a {
+  color: #349CFF;
   text-align: left;
 }
 
-.entry-meta a:hover {
+.article-meta a:hover {
   color: #58B1B9;
 }
 

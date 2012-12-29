@@ -7,10 +7,10 @@
 {{end}}
 
 {{define "_article_content"}}
-<div class="entry-title">
+<div class="article-title">
   <h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
 </div>
-<div class="entry-meta">
+<div class="article-meta">
   {{.comments | len}} <a href="{{.config.ArticleUrl}}{{.article.Id}}#comment">comments</a> | 
   <a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.Format "2006-01-02"}}
 </div>

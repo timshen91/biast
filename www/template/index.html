@@ -4,14 +4,14 @@
 {{range .articles}}
 <div class="entry-article" name="article-{{.Id}}" id="article-{{.Id}}">
   <div class="entry-article-main">
-    <div class="entry-title">
+    <div class="article-title">
       <h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
     </div>
     <hr/>
     {{.Content}}
   </div>
   <div class="entry-article-sidebar">
-    <ul class="entry-meta">
+    <ul class="article-meta">
       <li><a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a></li>
       <li>{{.Date.Format "2006-01-02"}}</li>
       <li>{{getCommentList .Id | len}} <a href="{{$top.config.ArticleUrl}}{{.Id}}#comment">comments</a></li> 
