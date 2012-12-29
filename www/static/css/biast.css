@@ -60,7 +60,7 @@ li ul {
 }
 
 #nav .items a {
-  color: #349CFF;
+  color: #444;
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
   border-left: 1px solid #CCC;
@@ -70,7 +70,7 @@ li ul {
 
 #nav .items a:hover {
   color: white;
-  background: #CCC;
+  background: #349CFF;
 }
 
 #nav .search {
@@ -294,6 +294,10 @@ textarea:focus, input:focus {
 
 .article-title a {
   color: #444;
+}
+
+.article-title a:hover {
+  color: #58B1B9;
 }
 
 .article-meta a {
