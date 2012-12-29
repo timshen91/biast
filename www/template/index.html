@@ -11,6 +11,7 @@
     {{.Content}}
   </div>
   <div class="entry-article-sidebar">
+    <img class="gravatar" src="{{getGravatarURL .Email 80}}" height="80" width="80"/>
     <ul class="article-meta">
       <li><a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a></li>
       <li>{{.Date.Format "2006-01-02"}}</li>

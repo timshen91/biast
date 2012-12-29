@@ -1,6 +1,7 @@
 package main
 
 import (
+    "github.com/nokivan/gravatar"
 	"bytes"
 	"compress/gzip"
 	"io"
@@ -116,4 +117,10 @@ func makeSummary(s string) string {
 		return s[:min] + "<br/>... ...<br/>"
 	}
 	return s[:min]
+}
+
+func getGravatarURL(email string, size int) string {
+    emailHash := gravatar.EmailHash(email)
+    url := gravatar.GetAvatarURL("https", emailHash, gravatar.DefaultMonster, size)
+    return url.String()
 }

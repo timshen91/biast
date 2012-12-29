@@ -136,6 +136,7 @@ func init() {
 		for {
 			tt := template.New("").Funcs(map[string]interface{}{
 				"getCommentList": getCommentList,
+				"getGravatarURL": getGravatarURL,
 			})
 			t, err := tt.ParseGlob(config["DocumentPath"] + "template/" + "*")
 			if err != nil {

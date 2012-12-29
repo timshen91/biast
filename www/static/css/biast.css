@@ -23,19 +23,6 @@ p {
   margin: 20px 0;
 }
 
-ul, ol {
-  margin: 14px auto;
-}
-
-ul {
-  list-style: square;
-}
-
-li ul {
-  list-style: disc;
-  margin: 8px 0;
-}
-
 /* nav bar */
 #nav {
   position: relative;
@@ -53,22 +40,25 @@ li ul {
   padding-right: 10px;
 }
 
-#nav .items {
-  float: left;
-  margin-left: 5px;
-  padding-right: 5px;
+#nav ul {
+  list-style-type: none;
 }
 
-#nav .items a {
+#nav ul li {
+  float: left;
+  line-height: 56px;
+  text-align: center;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#nav ul li a {
   color: #444;
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
-  border-left: 1px solid #CCC;
-  border-right: 1px solid #CCC;
-  padding: 0 10px 0 10px;
 }
 
-#nav .items a:hover {
+#nav ul a:hover {
   color: white;
   background: #349CFF;
 }
@@ -246,15 +236,20 @@ textarea:focus, input:focus {
 }
 
 .back-to-top {
-  left: 1200px;
+  right: 5px;
   position: fixed;
-  bottom: 0px;
+  bottom: 10px;
   display: block;
 }
 
 .back-to-top a {
   top: 0px;
   font-weight: bold;
+}
+
+.back-to-top a:hover {
+  color: white;
+  background: #349CFF;
 }
 
 .entry {
@@ -290,6 +285,10 @@ textarea:focus, input:focus {
 .entry-article-sidebar {
   float: left;
   font-size: 16px;
+}
+
+.gravatar {
+  margin-left: 25px;
 }
 
 .article-title a {

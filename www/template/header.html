@@ -12,7 +12,7 @@
   </head>
   <body>
     <div class="back-to-top">
-      <a href="#">Top↑</a>
+      <a href="#">TOP↑</a>
     </div>
 
     <header id="header">
@@ -20,11 +20,12 @@
     <div class="logo">
       <a href="{{.config.RootUrl}}"><img src="/image/SastLogo.png"></a>
     </div>
-    <div class="items">
-      <a href="{{.config.RootUrl}}">Home</a>
-      <a href="{{.config.TagsUrl}}">Tags Cloud</a>
-      <a href="{{.config.AdminUrl}}">Contribute</a>
-      <a href="{{.config.RootUrl}}about">About</a>
+    <ul class="items">
+      <li><a href="{{.config.RootUrl}}">Home</a></li>
+      <li><a href="{{.config.TagsUrl}}">Tags Cloud</a></li>
+      <li><a href="{{.config.AdminUrl}}">Contribute</a></li>
+      <li><a href="{{.config.ProjectUrl}}">Project</a></li>
+      <li><a href="{{.config.RootUrl}}about">About</a></li>
     </div>
     <!-- SiteSearch Google -->
     <div class="search">
