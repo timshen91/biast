@@ -2,37 +2,41 @@
 {{if .Website}}
 <a href="{{.Website}}">{{.Author}}</a>
 {{else}}
-{{.Author}}
+<b>{{.Author}}</b>
 {{end}} @ {{.Date.String}}
 {{end}}
 
-{{define "_article"}}
-<div class="entry-article" name="article-{{.article.Id}}" id="article-{{.article.Id}}">
-  <div class="entry-title">
-    <h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
-  </div>
-  <div class="entry-meta">
-    {{.comments | len}} <a href="{{.config.ArticleUrl}}{{.article.Id}}#comment">comments</a> | 
-    <a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.String}}
-  </div>
-  <hr />
+{{define "_article_content"}}
+<div class="entry-title">
+  <h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
+</div>
+<div class="entry-meta">
+  {{.comments | len}} <a href="{{.config.ArticleUrl}}{{.article.Id}}#comment">comments</a> | 
+  <a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.Format "2006-01-02"}}
+</div>
+<hr />
+<div class="entry-content">
   {{.article.Content}}
 </div>
 {{end}}
 
 
-{{define "_tag"}}
-<div class="entry-tag" id="tag">
-  <h2>TAGS</h2>
+{{define "_article_footer"}}
+<div class="entry-article-footer">
+  <h2>DOCUMENT INFO</h2>
   <hr />
-  <p>
-  {{$top := .}}
-  {{range .article.Tags}}
-  <a href="{{$top.config.TagsUrl}}{{.}}">{{.}}</a>
-  {{end}}
-  </p>
-  <hr />
+  <ul>
+    <li>SRC URL: <a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.config.ArticleUrl}}{{.article.Id}}</a></li>
+    <li>
+    TAG:
+    {{$top := .}}
+    {{range .article.Tags}}
+    <a href="{{$top.config.TagsUrl}}{{.}}"> #{{.}}</a>
+    {{end}}
+    </li>
+  </ul>
 </div>
+<hr />
 {{end}}
 
 {{define "_comment"}}
@@ -43,7 +47,7 @@
   <div id="comment-{{.Id}}">
     <div class="comment-meta">
       {{template "_comment_meta" .}}
-      <button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn btn-mini" style="float:right">Quote</button>
+      <button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn" style="float:right">Quote</button>
     </div>
     <div id="comment-content-{{.Id}}">
       {{.Content}}
@@ -61,14 +65,14 @@
   <hr />
   <div class="feedback">
     {{.feedback}}
-  <hr />
+    <hr />
   </div>
-  <form class="entry-comment-post-form" id="comment-form" method="post">
+  <form class="post-form" id="comment-form" method="post">
     <p>
     <label><input name="author" value="{{.cookies.name}}"/> Name</label>
     </p>
     <p>
-    <label><input name="email" value="{{.form.email}}"/> Email (Won't be published)</label>
+    <label><input name="email" value="{{.form.email}}"/> Email(Won't be published)</label>
     </p>
     <p>
     <label><input name="website" value="{{.cookies.website}}"/> Website(Optional)</label>
@@ -80,7 +84,7 @@
     <textarea rows="10" cols="80" name="content">{{.form.content}}</textarea>
     </p>
     <p>
-    <button type="submit" class="btn btn-primary" name="post">Send</button>
+    <button type="submit" onclick="location.href='#comment-post';" class="btn" name="post">Send</button>
     <label class="checkbox inline" for="notify">
       <input type="checkbox" name="notify" checked="checked">Send Email notification when quoted
     </label>
@@ -92,9 +96,11 @@
 
 {{define "article"}}
 {{template "_header" .}}
-{{template "_article" .}}
-{{template "_tag" .}}
-{{template "_comment" .comments}}
+<div class="entry-article" name="article-{{.article.Id}}" id="article-{{.article.Id}}">
+  {{template "_article_content" .}}
+  {{template "_article_footer" .}}
+  {{template "_comment" .comments}}
+</div>
 {{template "_comment_post_form" .}}
 {{template "_footer" .config}}
 {{end}}

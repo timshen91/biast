@@ -4,7 +4,7 @@
   {{.feedback}}
 </div>
 <div class="entry">
-  <form class="article-post-form" method="post">
+  <form class="post-form" method="post">
     <h1>POST AN ARTICLE (maintainers only)</h1>
     <hr />
     <blockquote>
@@ -19,7 +19,7 @@
     <label><input name="author" value="{{.form.Author}}"> Name</label>
     </p>
     <p>
-    <label><input name="email" value="{{.form.Email}}"/> Email (Won't be published)</label>
+    <label><input name="email" value="{{.form.Email}}"/> Email(Won't be published)</label>
     </p>
     <p>
     <label><input name="verification" value=""/> {{.code}}</label>
@@ -42,7 +42,7 @@
     </p>
     <p>
     <button type="submit" class="btn" name="post" value="preview" onclick="document.forms[0].target = '_blank';">Preview</button>
-    <button type="submit" class="btn btn-primary" name="post" value="submit" onclick="document.forms[0].target = '';">Submit</button>
+    <button type="submit" class="btn" name="post" value="submit" onclick="document.forms[0].target = '';">Submit</button>
     <label class="checkbox inline" for="notify">
       <input type="checkbox" name="notify" checked="checked">Send Email notification when commented
     </label>

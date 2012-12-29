@@ -1,28 +1,20 @@
 /* global */
 body {
   color: #444;
-  padding: 0;
-  margin: 0;
+  padding: 0 auto;
+  margin: 0 auto;
   font: 16px/1.62 "Rosario", "Xin Gothic", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", Arial, sans-serif;
+  background: #F2F2F2 url('/image/noise.png');
 }
 
 h1, h2, h3, h4, h5, strong {
   font-family: "PT Sans", "Xin Gothic", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", Arial, sans-serif;
-}
-
-h1 {
-  margin-top: 0;
-  font-size: 24px;
-}
-
-h2 {
   font-size: 20px;
-  margin: 45px 0 15px;
+  margin: 5px auto 5px auto;
 }
 
 h3 {
   font-size: 16px;
-  margin: 30px 0 10px;
 }
 
 p {
@@ -32,8 +24,7 @@ p {
 }
 
 ul, ol {
-  margin: 14px 0;
-  padding-left: 30px;
+  margin: 14px auto;
 }
 
 ul {
@@ -52,35 +43,37 @@ li ul {
   *width: 900px;
   height: 56px;
   margin: 0 auto;
-  background: #f4f4f4;
   line-height: 56px;
 }
 
 #nav .logo {
   width: 150px;
+  height: 56px;
   float: left;
-  background: #F4F4F4;
+  padding-right: 10px;
 }
 
 #nav .items {
   float: left;
+  margin-left: 5px;
+  padding-right: 5px;
 }
 
 #nav .items a {
   font-weight: bold;
   font-family: "Helvetica Neue", "Helvetica", arial, sans-serif;
-  border: 4px solid #F4F4F4;
+  border-left: 1px solid #CCC;
+  border-right: 1px solid #CCC;
+  padding: 0 10px 0 10px;
 }
 
 #nav .items a:hover {
   color: white;
-  background: #87D4DB;
-  border: 4px solid #87D4DB;
+  background: #CCC;
 }
 
 #nav .search {
   float: right;
-  padding-top: 12px;
 }
 
 #nav .search input {
@@ -207,8 +200,8 @@ textarea:focus, input:focus {
 
 #header {
   position: relative;
-  background: #f4f4f4;
-  box-shadow: 0 0 5px #ccc;
+  background: #F2F2F2 url('/image/noise.png');
+  border-bottom: 2px solid #E0E0E0;
   height: 56px;
   width: 100%;
   zoom: 1;
@@ -225,10 +218,10 @@ textarea:focus, input:focus {
 }
 
 #footer {
-  padding: 20px;
+  padding: 10px 20px;
   max-width: 900px;
   *width: 900px;
-  margin: 0 auto 30px;
+  margin: 0 auto 30px auto;
   text-align: left;
   color: #ccc;
   font-size: 14px;
@@ -251,6 +244,18 @@ textarea:focus, input:focus {
   float: right;
 }
 
+.back-to-top {
+  left: 1150px;
+  position: fixed;
+  bottom: 0px;
+  display: block;
+}
+
+.back-to-top a {
+  top: 0px;
+  font-weight: bold;
+}
+
 .entry {
   overflow: hidden;
   font-family: 'Rosario', 'Xin Gothic', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Arial, sans-serif;
@@ -269,11 +274,21 @@ textarea:focus, input:focus {
 .entry-article {
   overflow: hidden;
   font-family: 'Rosario', 'Xin Gothic', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', Arial, sans-serif;
-  border-top: 1px solid #58B1B9;
-  border-bottom: 1px solid #58B1B9;
-  box-shadow: 2px 2px 10px 2px #58B1B9;
-  margin: 40px auto;
-  padding: 20px 20px 20px 20px;
+  font-size: 16px;
+  padding: 20px 10px 20px 10px;
+  border-top: 2px solid #DDD;
+}
+
+.entry-article-main {
+  float: left;
+  width: 700px;
+  border-right: 2px solid #DDD;
+  padding-right: 10px;
+}
+
+.entry-article-sidebar {
+  float: left;
+  font-size: 16px;
 }
 
 .entry-title {
@@ -283,39 +298,50 @@ textarea:focus, input:focus {
 .entry-meta, .entry-meta a {
   color: #999;
   font-size: 14px;
-  text-align: right;
+  text-align: left;
 }
 
 .entry-meta a:hover {
   color: #58B1B9;
 }
 
-.entry-tag {
-  margin: 20px 0;
+.entry-content {
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
-.entry-tag a {
-  margin-right: 10px;
-}
-
-.entry-tag a:before {
-  content: "#";
-}
-
-.entry-tag a:hover {
+.entry-article-footer a:hover {
   color: #58B1B9;
 }
 
-.entry-tag hr {
-  border: 1px solid #58B1B9;
+.entry-article-footer {
+  overflow: hidden;
+  font-size: 14px;
+  background: #DDD;
+  padding: 10px;
+  margin: 30px 0px 20px 0px;
+  box-shadow: rgba(0,0,0,0.07) 0 2px 2px inset;
+  text-shadow: rgba(0,0,0,0.07) 0 2px 2px;
 }
 
-.entry-comment hr {
-  border: 1px solid #58B1B9;
+.entry-comment {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.entry-comment-post hr {
-  border: 1px solid #58B1B9;
+.entry-comment a {
+  font-weight: bold;
+}
+
+.entry-comment-post {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.post-form p {
+  margin: 15px 0;
 }
 
 .entry-list {
