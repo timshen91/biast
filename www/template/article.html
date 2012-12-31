@@ -3,16 +3,19 @@
 <a href="{{.Website}}">{{.Author}}</a>
 {{else}}
 <b>{{.Author}}</b>
-{{end}} @ {{.Date.String}}
+{{end}} @ {{.Date.Format "2006-01-02"}}
 {{end}}
 
 {{define "_article_content"}}
-<div class="article-title">
-  <h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
-</div>
-<div class="article-meta">
-  {{.comments | len}} <a href="{{.config.ArticleUrl}}{{.article.Id}}#comment">comments</a> | 
-  <a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.Format "2006-01-02"}}
+<div class="article-header">
+  <div class="article-title">
+    <h1><a href="{{.config.ArticleUrl}}{{.article.Id}}">{{.article.Title}}</a></h1>
+    <a href="{{.config.AuthorUrl}}{{.article.Author}}">{{.article.Author}}</a> @ {{.article.Date.Format "2006-01-02"}} | 
+    {{.comments | len}} <a href="{{.config.ArticleUrl}}{{.article.Id}}#comment">COMMENTS</a> 
+  </div>
+  <div class="header-portrait">
+    <img src="{{getGravatarURL .article.Email 80}}" size="80" />
+  </div>
 </div>
 <hr />
 <div class="entry-content">
@@ -45,11 +48,14 @@
   <hr />
   {{range .}}
   <div id="comment-{{.Id}}">
+    <div class="header-portrait">
+      <img src="{{getGravatarURL .Email 80}}" size="80" />
+    </div>
     <div class="comment-meta">
       {{template "_comment_meta" .}}
       <button onclick="quote('{{.Id}}', '{{.Author}}')" class="btn" style="float:right">Quote</button>
     </div>
-    <div id="comment-content-{{.Id}}">
+    <div class="comment-content">
       {{.Content}}
     </div>
   </div>

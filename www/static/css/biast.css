@@ -287,8 +287,16 @@ textarea:focus, input:focus {
   font-size: 16px;
 }
 
-.gravatar {
-  margin-left: 25px;
+.entry-article-sidebar .header-portrait {
+  margin-left: 20px;
+}
+
+.article-header {
+  height: 80px;
+}
+
+.entry-article .article-header .article-title {
+  float: left;
 }
 
 .article-title a {
@@ -299,18 +307,13 @@ textarea:focus, input:focus {
   color: #58B1B9;
 }
 
-.article-meta a {
-  color: #349CFF;
-  text-align: left;
-}
-
-.article-meta a:hover {
-  color: #58B1B9;
-}
-
 .entry-content {
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+.entry-article .header-portrait {
+  float: right;
 }
 
 .entry-article-footer a:hover {
@@ -335,6 +338,16 @@ textarea:focus, input:focus {
 
 .entry-comment a {
   font-weight: bold;
+}
+
+.entry-comment .header-portrait {
+  width: 80px;
+  float: left;
+  margin-right: 10px;
+}
+
+.comment-meta, .comment-content {
+  margin-left: 100px;
 }
 
 .entry-comment-post {

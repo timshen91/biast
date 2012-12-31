@@ -6,16 +6,17 @@
   <div class="entry-article-main">
     <div class="article-title">
       <h1><a href="{{$top.config.ArticleUrl}}{{.Id}}">{{.Title}}</a></h1>
+      <a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a> @ {{.Date.Format "2006-01-02"}}
+       | {{getCommentList .Id | len}} <a href="{{$top.config.ArticleUrl}}{{.Id}}#comment">COMMENTS</a> 
     </div>
-    <hr/>
-    {{.Content}}
+    <div class="summary">
+      <hr/>
+      {{.Content}}
+    </div>
   </div>
   <div class="entry-article-sidebar">
-    <img class="gravatar" src="{{getGravatarURL .Email 80}}" height="80" width="80"/>
+    <img class="header-portrait" src="{{getGravatarURL .Email 80}}" height="80" width="80"/>
     <ul class="article-meta">
-      <li><a href="{{$top.config.AuthorUrl}}{{.Author}}">{{.Author}}</a></li>
-      <li>{{.Date.Format "2006-01-02"}}</li>
-      <li>{{getCommentList .Id | len}} <a href="{{$top.config.ArticleUrl}}{{.Id}}#comment">comments</a></li> 
     </ol>
   </div>
 </div>

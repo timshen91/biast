@@ -129,6 +129,7 @@ func init() {
 	initIndex()
 	initPageAdmin()
 	initPageArticle()
+	initPageProject()
 	initPageAbout()
 	initNotification()
 	// template init and its coroutine
