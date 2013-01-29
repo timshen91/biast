@@ -1,9 +1,9 @@
 package main
 
 import (
-    "github.com/nokivan/gravatar"
 	"bytes"
 	"compress/gzip"
+	"github.com/nokivan/gravatar"
 	"io"
 	"net/http"
 	"strings"
@@ -32,7 +32,7 @@ func updateIndexAndFeed() {
 		"header":   config["ServerName"],
 	}); err != nil {
 		logger.Println("index cache:", err.Error())
-    }
+	}
 	indexCache = newIndexCache
 	newFeedCache := &bytes.Buffer{}
 	if err := tmpl.ExecuteTemplate(newFeedCache, "feed", map[string]interface{}{
@@ -120,7 +120,7 @@ func makeSummary(s string) string {
 }
 
 func getGravatarURL(email string, size int) string {
-    emailHash := gravatar.EmailHash(email)
-    url := gravatar.GetAvatarURL("https", emailHash, gravatar.DefaultMonster, size)
-    return url.String()
+	emailHash := gravatar.EmailHash(email)
+	url := gravatar.GetAvatarURL("https", emailHash, gravatar.DefaultMonster, size)
+	return url.String()
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 )
@@ -24,7 +23,7 @@ func authorHandler(w http.ResponseWriter, r *http.Request) {
 			"header":   "Author: " + author,
 		}); err != nil {
 			logger.Println("author:", err.Error())
-        }
+		}
 	}
 }
 
@@ -46,7 +45,6 @@ func updateAuthor(id aid, old, author string) {
 	authorMutex.Lock()
 	if old != "" {
 		list := author2Articles[old]
-		fmt.Println(list)
 		for i := len(list) - 1; i >= 0; i-- {
 			if list[i] == id {
 				for j := i; j < len(list)-1; j++ {
@@ -57,11 +55,9 @@ func updateAuthor(id aid, old, author string) {
 			}
 		}
 		author2Articles[old] = list
-		fmt.Println(list)
 	}
 	author2Articles[author] = append(author2Articles[author], 0)
 	list := author2Articles[author]
-	fmt.Println(list)
 	var i int
 	for i = len(list) - 2; i >= 0; i-- {
 		if list[i] > id {
@@ -71,7 +67,6 @@ func updateAuthor(id aid, old, author string) {
 		}
 	}
 	list[i+1] = id
-	fmt.Println(list)
 	authorMutex.Unlock()
 }
 
