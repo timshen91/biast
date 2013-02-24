@@ -90,8 +90,8 @@ func getGzipHandler(f http.HandlerFunc) http.HandlerFunc {
 		gw := gzip.NewWriter(w)
 		defer gw.Close()
 		f(responseRewriter{
-			http.ResponseWriter: w,
-			io.Writer:           gw,
+			ResponseWriter: w,
+			Writer:           gw,
 		}, r)
 	}
 }
