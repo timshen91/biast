@@ -91,7 +91,7 @@ func getGzipHandler(f http.HandlerFunc) http.HandlerFunc {
 		defer gw.Close()
 		f(responseRewriter{
 			ResponseWriter: w,
-			Writer:           gw,
+			Writer:         gw,
 		}, r)
 	}
 }
