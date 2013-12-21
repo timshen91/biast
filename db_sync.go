@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nokivan/redisgo"
+	"github.com/novanchao/redisgo"
 	"strconv"
 )
 
